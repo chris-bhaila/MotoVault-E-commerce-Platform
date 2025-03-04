@@ -1,0 +1,28 @@
+body
+{
+    margin-left: 40px;
+    margin-right: 40px;
+    text-align: justify;
+}
+h1
+{
+    font-family: 'Monsterrat', sans-serif;
+    text-align: center;
+    border-bottom: 1px solid black;
+}
+h2
+{
+    font-family: 'Monsterrat', sans-serif;
+}
+p
+{
+    font-family: 'Monsterrat', sans-serif;
+}
+footer f1
+{
+    font-family: 'Monsterrat', sans-serif;
+    background-color: #fff;
+    color: black;
+    padding: 10px 0;
+    text-align: center;
+}

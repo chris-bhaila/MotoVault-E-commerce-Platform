@@ -1,0 +1,89 @@
+.buttons {
+  padding: 10px;
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  height: 5vh;
+}
+
+.add-to-cart,
+.buy {
+  font-family: 'Oswald', sans-serif;
+  padding: 10px;
+  display: inline-block;
+  font-size: 16px;
+  text-decoration: none;
+  color: white;
+  border-radius: 4px;
+  text-align: center;
+  position: relative;
+  transition: all .35s;
+  margin-left: 10px; /* Added margin to separate the buttons */
+  cursor: pointer;
+  width: 140px;
+}
+
+/* Add to Cart Button */
+.add-to-cart {
+  background-color: green;
+  border-color: green;
+  border: 2px solid green;
+}
+
+.add-to-cart::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 100%;
+  background-color: white;
+  transition: width 0.35s ease;
+  z-index: 1; /* Sits under the text */
+}
+
+.add-to-cart:hover {
+  color: green;
+  background-color: white;
+  font-weight: bolder;
+  font-size: 22px; /* Increase font size */
+}
+
+.add-to-cart:hover::after {
+  width: 100%; /* Expands from left to right */
+}
+
+/* Buy Now Button */
+.buy {
+  background-color: red;
+  border-color: red;
+  border: 2px solid red;
+}
+
+.buy::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 100%;
+  background-color: white;
+  transition: width 0.35s ease;
+  z-index: 1; /* Sits under the text */
+}
+
+.buy:hover {
+  color: red;
+  background-color: white;
+  font-size: 22px;
+  font-weight: bolder;
+}
+
+.buy:hover::after {
+  width: 100%; /* Expands from left to right */
+}
+
+/* Remove margin-left from the first button */
+.buttons input:first-child {
+  margin-left: 0;
+}

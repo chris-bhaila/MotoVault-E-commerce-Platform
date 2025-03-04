@@ -1,0 +1,293 @@
+.content {
+    position: relative;
+    width: 100%;
+    margin: auto;
+    height: 100vh;
+    display: flex;
+    content: '';
+    top: 0;
+    left: 0;
+    background: url('../rossi.jpg'), linear-gradient(to left, rgba(255, 255, 255, 0.3), black);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-blend-mode: overlay; 
+    box-shadow: 0 8px 10px 0 rgba(0, 0, 0, 0.6);
+    animation: fadeInDownImg;
+    animation-duration: 2s;
+}
+.content .left
+{
+    width: 70%;
+    padding-left: 5rem;
+    color: white;
+    padding-top: 7.5rem;
+}
+.content h1
+{
+    width: 80%;
+    font-size: 5.4rem;
+    animation: fadeInDown;
+    animation-duration: 2s;
+}
+.content p
+{
+    width: 65%;
+    font-size: 3rem;
+    animation: fadeInDown;
+    animation-duration: 2s;
+    animation-delay: 0s; /* Adjust the delay as needed */
+}
+
+.slide
+{
+    border-color: transparent;
+    font-size: 18px;
+    background-color: #f6f610;
+    padding: 10px;
+    padding-left: 30px;
+    padding-right: 30px;
+    color: black;
+    font-family: 'Oswald', sans-serif;
+    letter-spacing: 0.2px;
+    font-weight:bolder;
+    border-radius: 1px;
+    transition: 0.2s ease-in;
+    cursor: pointer;
+    border-radius: 6px;
+    animation: fadeInDown;
+    animation-duration: 2s;
+}
+.slide:hover
+{
+    background-color: transparent;
+    color: #f6f610;
+    border-color: #f6f610;
+    backdrop-filter: blur(6px);
+}
+
+/*Category section*/
+.category
+{
+    margin-left: 38vh;
+    margin-right: 38vh;
+    margin-top: 10vh;
+    margin-bottom: 10vh;
+}
+
+.category .box-container
+{
+    width: inherit;
+    display: flex;
+    flex-wrap: wrap;
+    margin-bottom: 3vh;
+}
+.category .box-container .box
+{
+    padding-top: 3vh;
+    margin-left: 6.5vh;
+    transition: transform 0.3s ease-in-out;
+}
+.category .box-container .box:hover
+{
+    transform: scale(1.3);
+}
+.category .box-container .box img
+{
+    width: 100px;
+    height: 100px;
+    cursor: pointer;
+}
+.category .box-container .box .name
+{
+    text-align: center;
+    cursor: pointer;
+}
+
+/*PRODUCTS SECTION*/
+.all-products {
+    margin-left: 30vh;
+    margin-right: 30vh;
+    margin-top: 10vh;
+    margin-bottom: 10vh;
+}
+
+.all-products .product-info {
+    display: flex;
+    flex-wrap: wrap; /* Allows wrapping to the next line */
+    gap: 20px; /* Space between items */
+    justify-content: space-around; /* Distribute items evenly */
+}
+
+.all-products .product {
+    width: 30%; /* Adjust width so that three items fit in one row */
+    display: flex;
+    flex-direction: column; /* Stack items vertically */
+    align-items: center; /* Center-align items horizontally */
+    justify-content: space-between; /* Distribute space evenly between items */
+    height: 50vh; /* Height of each product item */
+    padding: 10px; /* Optional: Add padding */
+    text-align: center; /* Center-align text */
+    margin-bottom: 15vh;
+}
+
+.all-products img {
+    width: 400px; /* Make image take full width of its container */
+    height: 350px; /* Maintain aspect ratio */
+    margin-top: 10px;
+    padding-left: 30px;
+    padding-right: 30px;
+    object-fit: cover; /* Cover the container while maintaining aspect ratio */
+    cursor: pointer;
+    transition: transform 0.3s ease-in-out;
+    margin-bottom: 5vh;
+}
+
+.all-products img:hover {
+    transform: scale(1.14);
+}
+
+.all-products .product .box {
+    display: flex;
+    flex-direction: column; /* Stack items vertically */
+    align-items: center; /* Center-align items horizontally */
+    justify-content: space-between; /* Evenly distribute items */
+    flex-grow: 1; /* Allow the box to grow and fill available space */
+    gap: 10px; /* Space between items */
+}
+
+.all-products .product .name {
+    font-size: 18px;
+}
+
+.all-products .product .price {
+    font-size: 18px;
+    color: green;
+}
+
+.all-products .product .l-stock {
+    color: red;
+    font-size: 20px;
+}
+
+.all-products h1 {
+    margin-left: 8vh;
+}
+
+.all-products .filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 40px; /* Add some space between the boxes */
+    margin-left: 13vh; 
+}
+
+/* General box container */
+.box-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+/* Individual box containing the checkbox, image, and label */
+.box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 10px;
+    border-radius: 8px;
+    transition: border-color 0.3s ease;
+}
+
+/* Remove hover box shadow and only change border on hover */
+.box:hover {
+    border-color: #bbb;
+}
+
+/* Hide default checkbox */
+.subcategory-checkbox {
+    display: none;
+}
+
+/* Custom checkbox label (acts as a wrapper for the image) */
+.box label {
+    cursor: pointer;
+    display: block;
+    position: relative;
+}
+
+/* Custom checkbox styling */
+.box label:before {
+    content: "";
+    display: block;
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+    background: transparent;
+    position: absolute;
+    /* top: -5px; */
+    left: 75px;
+    transition: background 0.3s ease, border-color 0.3s ease;
+    outline: none;
+}
+
+/* Checkbox checked state */
+.subcategory-checkbox:checked + label:before {
+    background: #4CAF50;
+    border-color: #4CAF50;
+}
+
+/* Remove checkbox outline and custom checkmark */
+.subcategory-checkbox:checked + label:after {
+    content: '✔';
+    color: white;
+    font-size: 12px;
+    position: absolute;
+    top: 1px;
+    left: 80px;
+    outline: none;
+    bottom: 5px;
+}
+
+/* Image inside the checkbox */
+.box img {
+    max-width: 100px;
+    height: auto;
+    border-radius: 8px;
+    outline: none;
+}
+
+/* Product name below the image */
+.name {
+    margin-top: 10px;
+    font-size: 18px;
+    font-weight: bold;
+    color: #333;
+}
+
+@keyframes fadeInDown {
+    0% {
+       opacity: 0;
+       transform: translateY(-20px);
+    }
+    100% {
+       opacity: 1;
+       transform: translateY(0);
+    }
+ } 
+@keyframes fadeInDownImg {
+    0% {
+       opacity: 0.4;
+       transform: translateY(-20px);
+    }
+    50% {
+       opacity: 0.8;
+       /* transform: translateY(-8px); */
+    }
+    100% {
+       opacity: 1;
+       transform: translateY(0);
+    }
+ } 
+
+ 

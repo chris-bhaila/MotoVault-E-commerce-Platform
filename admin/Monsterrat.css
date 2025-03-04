@@ -1,0 +1,8 @@
+@font-face {
+    font-family: 'Monsterrat';
+    src: url('../Monsterrat.ttf') format('truetype');
+}
+
+body {
+    font-family: 'Monsterrat', sans-serif;
+}

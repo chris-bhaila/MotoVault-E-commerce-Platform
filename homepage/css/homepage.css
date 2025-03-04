@@ -1,0 +1,277 @@
+body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+}
+.video-container {
+    position: relative;
+    height: 100vh;
+    width: 100%;
+    overflow: hidden;
+}
+#bg-video {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: brightness(0.6);
+}
+.video-container .content {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    text-align: center;
+    z-index: 1;
+}
+.video-container .content h1 {
+    font-size: 4rem;
+    color: #f6f610;
+}
+.video-container .content p {
+    font-size: 2rem;
+}
+.video-container .content button {
+    padding: 10px 20px;
+    font-size: 1rem;
+    cursor: pointer;
+}
+.slide
+{
+    border-color: transparent;
+    font-size: 18px;
+    background-color: #f6f610;
+    padding: 10px;
+    padding-left: 30px;
+    padding-right: 30px;
+    color: black;
+    font-family: 'Oswald', sans-serif;
+    letter-spacing: 0.2px;
+    font-weight:bolder;
+    border-radius: 1px;
+    transition: 0.2s ease-in;
+    cursor: pointer;
+    border-radius: 6px;
+}
+.slide:hover
+{
+    background-color: transparent;
+    backdrop-filter: blur(4px);
+    color: #f6f610;
+    border-color: #f6f610;
+}
+
+/*Brands Strip*/
+.brand-strip
+{
+    margin-left: 40vh;
+    margin-right: 40vh;
+    margin-bottom: 10vh;
+}
+.brand-strip .box-container
+{
+    width: inherit;
+    display: flex;
+    flex-wrap: wrap;
+    margin-bottom: 3vh;
+}
+.brand-strip .box-container .box
+{
+    padding-top: 3vh;
+    margin-left: 6.5vh;
+    transition: transform 0.3s ease-in-out;
+}
+.brand-strip .box-container .box:hover
+{
+    transform: scale(1.3);
+}
+.brand-strip .box-container .box img
+{
+    width: 120px;
+    height: 120px;
+    cursor: pointer;
+}
+.brand-strip .box-container .box a
+{
+    text-decoration: none;
+    color: black;
+}
+.brand-strip .box-container .box .name
+{
+    text-align: center;
+    cursor: pointer;
+}
+.brand-strip .box-container .box1
+{
+    align-items: center;
+    margin-top: 70px;
+    padding-top: 3vh;
+    margin-left: 6.5vh;
+    transition: 0.1s ease-in;
+    cursor: pointer;
+}
+/* .brand-strip .box-container .box1 h2
+{
+    transition: 0.2s ease-in;
+    cursor: pointer;
+} */
+.brand-strip .box-container .box1:hover
+{
+    text-decoration: underline;
+}
+.heading1,.heading2
+{
+    margin-top: 5vh;
+    padding: 5vh;
+    text-align: center;
+}
+
+.products {
+    margin-top: 5vh;
+    margin-bottom: 5vh;
+    display: flex;
+    justify-content: space-evenly;
+    padding: 0%;
+}
+
+.products .left, .products .center, .products .right {
+    position: relative;
+    width: 40%;
+    height: 28em;
+    overflow: hidden;
+    transition: 0.3s ease;
+}
+
+.products .left::before, .products .center::before, .products .right::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    filter: brightness(0.3);
+    z-index: 1;
+    cursor: pointer;
+}
+
+.products .left::before {
+    background-image: url('../helmet.jpg'); /* Replace with your image path */
+}
+
+.products .center::before {
+    background-image: url('../parts.jpg'); /* Replace with your image path */
+}
+
+.products .right::before {
+    background-image: url('../gears.webp'); /* Replace with your image path */
+}
+
+.products .left h1, .products .center h1, .products .right h1 {
+    top: 35%;
+    right: 2%;
+    position: relative;
+    text-align: center;
+    z-index: 2;
+    color: white; /* Adjust text color as needed */
+    cursor: pointer;
+}
+
+.products .left:hover,
+.products .center:hover,
+.products  .right:hover
+{
+    filter: brightness(2.5);
+}
+
+/* .page-content .content2
+{
+    position: relative;
+    width: 100%;
+    margin: auto;
+    height: 100vh;
+    display: flex;
+    content: '';
+    top: 0;
+    left: 0;
+    background: url('../streetfighter.jpg'), linear-gradient(to right, rgba(255, 255, 255, 0.45), black);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-blend-mode: overlay; 
+    box-shadow: 0 8px 10px 0 rgba(0, 0, 0, 0.6);
+}
+.content2 .right
+{
+    margin-left: 65%;
+    width: 50%;
+    padding-right: 5rem;
+    color: white;
+    padding-top: 2.5rem;
+}
+.content2 h1
+{
+    text-align: right;
+    font-size: 4.8rem;
+}
+.content2 p
+{
+    text-align: right;
+    width: 100%;
+    font-size: 2rem;
+} */
+.slide1
+{
+    border-color: transparent;
+    font-size: 18px;
+    background-color: #f6f610;
+    padding: 10px;
+    padding-left: 30px;
+    padding-right: 30px;
+    color: black;
+    font-family: 'Oswald', sans-serif;
+    letter-spacing: 0.2px;
+    font-weight:bolder;
+    border-radius: 1px;
+    transition: 0.2s ease-in;
+    cursor: pointer;
+    margin-left: 73%;
+}
+.slide1:hover
+{
+    background-color: transparent;
+    color: #f6f610;
+    border-color: #f6f610;
+}
+.assure
+{
+    margin-top: 7vh;
+    width: 100%;
+    display: flex;
+    justify-content: space-evenly;
+}
+.secure,
+.ship,
+.return
+{
+    text-align: center;
+}
+.secure img,
+.ship img,
+.return img
+{
+    width: 10vh;
+    height: 10vh;
+}
+.secure p,
+.ship p,
+.return p
+{
+    font-weight: lighter;
+    opacity: 0.75;
+}
