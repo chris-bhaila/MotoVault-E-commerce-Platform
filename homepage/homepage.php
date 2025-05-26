@@ -31,6 +31,7 @@
                 <h1>REV UP YOUR RIDE WITH MOTOVAULT</h1>
                 <p>Top-tier gears and accessories for the ultimate motorbike experience</p>
                 <button class="slide" onclick="document.getElementById('head').scrollIntoView({ behavior: 'smooth' });">Explore</button>
+                <button class="slide" onclick="javascript:window.location='browse.php'">Browse</button>
             </div>
         </div>
     </div>

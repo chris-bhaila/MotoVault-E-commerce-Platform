@@ -1,0 +1,85 @@
+body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+}
+
+.main-container {
+    height: 100vh;
+    margin-left: 20vh;
+    margin-right: 20vh;
+}
+
+.all-products {
+    margin-top: 2vh;
+    margin-bottom: 10vh;
+}
+
+.all-products .product-info {
+    display: flex;
+    flex-wrap: wrap; /* Allows wrapping to the next line */
+    gap: 20px; /* Space between items */
+    justify-content: space-around; /* Distribute items evenly */
+}
+
+.all-products .product {
+    width: 20%; /* Adjust width so that three items fit in one row */
+    display: flex;
+    flex-direction: column; /* Stack items vertically */
+    align-items: center; /* Center-align items horizontally */
+    justify-content: space-between; /* Distribute space evenly between items */
+    height: 50vh; /* Height of each product item */
+    padding: 10px; /* Optional: Add padding */
+    text-align: center; /* Center-align text */
+    margin-bottom: 15vh;
+}
+
+.all-products img {
+    width: 400px; /* Make image take full width of its container */
+    height: 350px; /* Maintain aspect ratio */
+    margin-top: 10px;
+    padding-left: 30px;
+    padding-right: 30px;
+    object-fit: cover; /* Cover the container while maintaining aspect ratio */
+    cursor: pointer;
+    transition: transform 0.3s ease-in-out;
+    margin-bottom: 5vh;
+}
+
+.all-products img:hover {
+    transform: scale(1.14);
+}
+
+.all-products .product .box {
+    display: flex;
+    flex-direction: column; /* Stack items vertically */
+    align-items: center; /* Center-align items horizontally */
+    justify-content: space-between; /* Evenly distribute items */
+    flex-grow: 1; /* Allow the box to grow and fill available space */
+    gap: 10px; /* Space between items */
+}
+
+.all-products .product .name {
+    font-size: 18px;
+}
+
+.all-products .product .price {
+    font-size: 18px;
+    color: green;
+}
+
+.all-products .product .l-stock {
+    color: red;
+    font-size: 20px;
+}
+
+.all-products h1 {
+    margin-left: 8vh;
+}
+
+.all-products .filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 40px; /* Add some space between the boxes */
+    margin-left: 13vh; 
+}

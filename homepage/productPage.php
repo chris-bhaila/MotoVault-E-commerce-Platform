@@ -409,6 +409,54 @@ if (isset($_POST["add-to-cart"])) {
                     </form>
                 </div>
             </div>
+            <?php
+            $target_id = $product_id; // the product the user is viewing or wants similar items to
+
+            $products_query = mysqli_query($conn, "SELECT product_id, name, features FROM motoproducts");
+
+            $products = [];
+
+            while ($row = mysqli_fetch_assoc($products_query)) {
+                $vector_text = strtolower($row['name'] . ' ' . $row['features']); // combine fields
+                $products[] = [
+                    'id' => (int)$row['product_id'],
+                    'vector' => $vector_text
+                ];
+            }
+
+            $data = [
+                'target_id' => $target_id,
+                'products' => $products
+            ];
+
+            $json = escapeshellarg(json_encode($data));
+            $output = shell_exec("python app.py $json");
+            $similar_ids = json_decode($output, true);
+
+            echo '<div class="recommended-products">';
+
+            if (is_array($similar_ids) && count($similar_ids) > 0) 
+            {
+                $ids = array_map('intval', $similar_ids);
+                $ids_list = implode(',', $ids);
+
+                $query = mysqli_query($conn, "SELECT * FROM motoproducts WHERE product_id IN ($ids_list)");
+
+                while ($row = mysqli_fetch_assoc($query)) {
+                    echo '<div class="product">';
+                    echo '<a href="productPage.php?id=' . $row['product_id'] . '">';
+                    echo '<img src="../admin/products/' . $row['image'] . '" alt="' . $row['name'] . '" class="image">';
+                    echo '</a>';
+                    echo '<div class="box">';
+                    echo '<div class="name">' . $row['name'] . '</div>';
+                    echo '</div>';
+                    echo '<div class="price">NPR ' . number_format($row['price']) . '</div>';
+                    echo '</div>';
+                }
+            } else {
+                echo "<p>No recommendations available.</p>";
+            }
+        ?>
         </div>
         <?php include("../footer.php"); ?>
     </body>
