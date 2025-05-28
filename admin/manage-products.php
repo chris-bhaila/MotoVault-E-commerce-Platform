@@ -249,6 +249,14 @@ session_start();
                         <p style="color: red;">*Use '!' for line separation</p></td>
                     </tr>
                     <tr>
+                    <td>Tags:</td>
+                    <td style="position: relative;">
+                        <textarea name="tags" class="custom-input" style="width: 20vw;" required onkeyup="showHint(this.value)" id="tags"></textarea>
+                        <div id="suggestions" style="position: absolute; background: white; width: 20vw; max-height: 150px; overflow-y: auto; z-index: 1000;"></div>
+                    </td>
+                    <td></td>
+                    </tr>
+                    <tr>
                         <td><label class="image">Image</label></td>
                         <td><input type="file" name="images[]" accept=".jpg, .jpeg, .png, .svg, .webp" class="image1" multiple required></td>
                     </tr>
@@ -337,6 +345,61 @@ session_start();
                     // Handle sub-category change here if needed
                 });
             });
+        }
+        function showHint(str) {
+            const suggestionsBox = document.getElementById("suggestions");
+            if (str.length === 0) {
+                suggestionsBox.innerHTML = "";
+                return;
+            }
+
+            const lastWord = getLastWord(str);
+
+            const xhr = new XMLHttpRequest();
+            xhr.onreadystatechange = function () {
+                if (this.readyState === 4 && this.status === 200) {
+                    const tags = this.responseText.split(",");
+                    let html = "";
+                    tags.forEach(tag => {
+                        tag = tag.trim();
+                        if (tag !== "No Suggestions Found" && tag !== "") {
+                            html += `<div onclick="addTag('${tag}')"
+                                        style="padding: 5px; cursor: pointer;"
+                                        onmouseover="this.style.backgroundColor='#eee'"
+                                        onmouseout="this.style.backgroundColor='white'">${tag}</div>`;
+                        }
+                    });
+                    suggestionsBox.innerHTML = html;
+                }
+            };
+            xhr.open("GET", "tagList.php?q=" + encodeURIComponent(lastWord), true);
+            xhr.send();
+        }
+
+        // Helper: Get the last word (partial tag) from textarea
+        function getLastWord(inputText) {
+            let parts = inputText.split(',');
+            return parts[parts.length - 1].trim(); // Last segment after comma
+        }
+
+        // Insert selected tag, replacing the last typed word
+        function addTag(selectedTag) {
+            const input = document.getElementById("tags");
+            let currentValue = input.value;
+            let parts = currentValue.split(',');
+            
+            // Replace the last word with selectedTag
+            parts[parts.length - 1] = " " + selectedTag; // Add space before tag
+            let newTags = parts.map(tag => tag.trim()).filter(tag => tag !== "");
+
+            // Remove duplicates
+            newTags = [...new Set(newTags)];
+
+            // Add trailing comma and space
+            input.value = newTags.join(", ") + ", ";
+
+            // Clear suggestions box
+            document.getElementById("suggestions").innerHTML = "";
         }
     </script>
 </body>

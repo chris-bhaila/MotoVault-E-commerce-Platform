@@ -1,0 +1,229 @@
+body
+        {
+            background-color: white;
+        }
+        .info-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 2%;
+        }
+        .info-container .left, .info-container .right {
+            width: 45%;
+        }
+        .info-container .left {
+            text-align: center;
+        }
+        .info-container .left img {
+            max-width: 100%;
+            height: auto;
+        }
+        .info-container .right {
+            padding-left: 5%;
+        }
+        .info-container .right .h-name {
+            font-size: 40px;
+            font-weight: bolder;
+        }
+        .info-container .right .price {
+            /* text-decoration: line-through; */
+            font-size: 30px;
+            color: green;
+        }
+        .info-container .right .desc {
+            text-align: justify;
+            font-size: 17px;
+        }
+        .info-container .right .feature h3 {
+            font-size: 30px;
+        }
+        .info-container .right .feature .feat {
+            font-size: 20px;
+        }
+        .info-container .right .brand {
+            font-size: 25px;
+            color: green;
+        }
+        .info-container .right .l-stock {
+            color: red;
+            font-size: 20px;
+        }
+        .review-container {
+            display: flex;
+            flex-direction: column;
+            /* padding: 0.5%; */
+            padding-left: 2%;
+            padding-right: 2%;
+        }
+        .review-container h2
+        {
+            margin-bottom: -10px;
+        }
+        .review-container .user-review
+        {
+            padding: 10px;
+            max-height: fit-content;
+        }
+        .review-container .new-review .desc {
+            width: 100%;
+            height: 10vh;
+            margin-top: 10px;
+            margin-right: 20px;
+            box-sizing: border-box;
+            font-family: Oswald,sans-serif;
+            padding: 8px;
+        }
+        .review-container .new-review .rev
+        {
+            height: 4vh;
+            width: 15vh;
+            background-color: black;
+            font-family: Oswald, sans-serif;
+            color: white;
+            font-size: 16px;
+            text-align: center;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: 0.2s ease-in;
+            margin-top: 4px;
+        }
+        .review-container .new-review .rev:hover
+        {
+            border: 1px solid darkgray;
+            background-color: darkgray;
+        }
+        .stars 
+        {
+            font-size: 20px; /* Adjust the size of the stars */
+            color: gold; /* Default color for filled stars */
+        }
+        .empty-stars 
+        {
+            margin-top: -3px;
+            margin-left: -6px;
+            font-size: 20px;
+            color: lightgray; /* Color for empty stars */
+        }
+        .review-container .user-review .rev-star
+        {
+            margin-top: -20px;
+            margin-bottom: -10px;
+        }
+        .review-container .user-review .indiv-rev
+        {
+            border-bottom: 1px solid grey;
+        }
+        .quantity
+        {
+            font-family: Arial;
+            width: 60px;
+            height: 40px;
+            font-size: 20px;
+            border: 2px solid black;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        .quantity::-webkit-outer-spin-button,
+        .quantity::-webkit-inner-spin-button {
+            height: 30px;  /* Make the spinner buttons taller */
+            width: 30px;   /* Make the spinner buttons wider */
+        }
+
+        /* .recom-container
+        {
+            display: flex;
+        } */
+
+        .r-container .r-products
+{
+    display: flex;
+    flex-wrap: wrap; /* Allows wrapping to the next line */
+    gap: 20px; /* Space between items */
+    justify-content: space-around; /* Distribute items evenly */
+}
+
+.r-container .r-products .r-info
+{
+    width: 20%; /* Adjust width so that three items fit in one row */
+    display: flex;
+    flex-direction: column; /* Stack items vertically */
+    align-items: center; /* Center-align items horizontally */
+    justify-content: space-between; /* Distribute space evenly between items */
+    height: 50vh; /* Height of each product item */
+    padding: 10px; /* Optional: Add padding */
+    text-align: center; /* Center-align text */
+    margin-bottom: 15vh;
+}
+
+/* Remove text decoration from the product link */
+.r-info .product-link
+{
+    text-decoration: none;
+    color: inherit; /* Inherit color from parent instead of default link color */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+}
+
+.r-info .product-image
+{
+    width: 400px; /* Make image take full width of its container */
+    height: 350px; /* Maintain aspect ratio */
+    margin-top: 10px;
+    padding-left: 30px;
+    padding-right: 30px;
+    object-fit: cover; /* Cover the container while maintaining aspect ratio */
+    cursor: pointer;
+    transition: transform 0.3s ease-in-out;
+    margin-bottom: 5vh;
+}
+
+.r-info .product-image:hover
+{
+    transform: scale(1.14);
+}
+
+.r-info .product-info
+{
+    display: flex;
+    flex-direction: column; /* Stack items vertically */
+    align-items: center; /* Center-align items horizontally */
+    justify-content: space-between; /* Evenly distribute items */
+    flex-grow: 1; /* Allow the box to grow and fill available space */
+    gap: 10px; /* Space between items */
+}
+
+.r-info .product-info .product-name
+{
+    font-size: 18px;
+    text-decoration: none;
+    color: inherit; /* Ensure it inherits color from parent */
+}
+
+.r-info .product-price
+{
+    font-size: 18px;
+    color: green;
+    text-decoration: none;
+}
+
+/* Additional specificity to ensure no underlines */
+.r-info .product-link:hover,
+.r-info .product-link:visited,
+.r-info .product-link:active
+{
+    text-decoration: none;
+}
+
+.r-info .limited-stock
+{
+    color: red;
+    font-size: 20px;
+}
+
+.recom-container h2
+{
+    padding-left: 2%;
+}

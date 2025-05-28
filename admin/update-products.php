@@ -17,6 +17,7 @@
         $stock = addslashes($_POST['stock']);
         $description = addslashes($_POST['description']);
         $features = addslashes($_POST['features']);
+        $tags = addslashes($_POST["tags"]);
         
         // Fetch the current image from the database
         $result = mysqli_query($conn, "SELECT image FROM motoproducts WHERE product_id='$id'");
@@ -53,7 +54,7 @@
         $query = "UPDATE motoproducts 
                   SET name='$name', price='$price', brand_fid='$brand', category_fid='$category',
                       sub_cat_fid='$sub_category', stock='$stock',
-                      description='$description', features='$features', image='$imagePath' 
+                      description='$description', features='$features', image='$imagePath', tags='$tags'
                   WHERE product_id='$id'";
 
     if (mysqli_query($conn, $query)) {
@@ -300,6 +301,13 @@ if (isset($_GET['remove'])) {
                 <td><textarea name="features" id="features" class="custom-input" required></textarea>
                 <p style="color: red;">*Use '!' for line separation</p></td></tr>
                 <tr>
+                    <td>Tags:</td>
+                    <td style="position: relative;">
+                        <textarea name="tags" class="custom-input" style="width: 20vw;" required onkeyup="showHint(this.value)" id="tags"></textarea>
+                        <div id="suggestions" style="position: absolute; background: white; width: 20vw; max-height: 150px; overflow-y: auto; z-index: 1000;"></div>
+                    </td>
+                    <td></td>
+                    </tr>
                     <td><label class="image">Image</label></td>
                     <td><input type="file" name="image" accept=".jpg, .jpeg, .png, .svg" class="image1"></td>
                 </tr>
@@ -336,12 +344,18 @@ if (isset($_GET['remove'])) {
                             <td class="p-price"><?php echo $fetch_product['price']; ?></td>
                             <td class="p-stock" style="text-align: center;"><?php echo $fetch_product['stock']; ?></td>
                             <td>
-                                <button type="button" class="update-btn" data-id="<?php echo $fetch_product['product_id']; ?>" 
-                                data-name="<?php echo $fetch_product['name']; ?>" data-price="<?php echo $fetch_product['price']; ?>" 
-                                data-category="<?php echo $fetch_product['category_fid']; ?>" data-sub-category="<?php echo $fetch_product['sub_cat_fid']; ?>"
-                                 data-brand="<?php echo $fetch_product['brand_fid']; ?>" 
-                                data-stock="<?php echo $fetch_product['stock']; ?>" data-description="<?php echo $fetch_product['description']; ?>" 
-                                data-features="<?php echo $fetch_product['features']; ?>">Update</button><br><br>
+                                <!-- Fix the data attributes in the update button -->
+                                <button type="button" class="update-btn" 
+                                    data-id="<?php echo $fetch_product['product_id']; ?>" 
+                                    data-name="<?php echo $fetch_product['name']; ?>" 
+                                    data-price="<?php echo $fetch_product['price']; ?>" 
+                                    data-category="<?php echo $fetch_product['category_fid']; ?>" 
+                                    data-sub-category="<?php echo $fetch_product['sub_cat_fid']; ?>"
+                                    data-brand="<?php echo $fetch_product['brand_fid']; ?>" 
+                                    data-stock="<?php echo $fetch_product['stock']; ?>" 
+                                    data-description="<?php echo $fetch_product['description']; ?>" 
+                                    data-features="<?php echo $fetch_product['features']; ?>" 
+                                    data-tags="<?php echo $fetch_product['tags']; ?>">Update</button><br><br>
                                 <a href="update-products.php?remove=<?php echo $fetch_product['product_id']; ?>" class="r-btn">Remove</a>
                             </td>
                         </form>
@@ -363,6 +377,7 @@ if (isset($_GET['remove'])) {
                     document.getElementById('stock').value = button.getAttribute('data-stock');
                     document.getElementById('description').value = button.getAttribute('data-description');
                     document.getElementById('features').value = button.getAttribute('data-features');
+                    document.getElementById('tags').value = button.getAttribute('data-tags');
 
                     let category = button.getAttribute('data-category');
                     document.querySelectorAll('.category').forEach((elem) => {
@@ -403,6 +418,61 @@ if (isset($_GET['remove'])) {
                 }
             })
         });
+        function showHint(str) {
+            const suggestionsBox = document.getElementById("suggestions");
+            if (str.length === 0) {
+                suggestionsBox.innerHTML = "";
+                return;
+            }
+
+            const lastWord = getLastWord(str);
+
+            const xhr = new XMLHttpRequest();
+            xhr.onreadystatechange = function () {
+                if (this.readyState === 4 && this.status === 200) {
+                    const tags = this.responseText.split(",");
+                    let html = "";
+                    tags.forEach(tag => {
+                        tag = tag.trim();
+                        if (tag !== "No Suggestions Found" && tag !== "") {
+                            html += `<div onclick="addTag('${tag}')"
+                                        style="padding: 5px; cursor: pointer;"
+                                        onmouseover="this.style.backgroundColor='#eee'"
+                                        onmouseout="this.style.backgroundColor='white'">${tag}</div>`;
+                        }
+                    });
+                    suggestionsBox.innerHTML = html;
+                }
+            };
+            xhr.open("GET", "tagList.php?q=" + encodeURIComponent(lastWord), true);
+            xhr.send();
+        }
+
+        // Helper: Get the last word (partial tag) from textarea
+        function getLastWord(inputText) {
+            let parts = inputText.split(',');
+            return parts[parts.length - 1].trim(); // Last segment after comma
+        }
+
+        // Insert selected tag, replacing the last typed word
+        function addTag(selectedTag) {
+            const input = document.getElementById("tags");
+            let currentValue = input.value;
+            let parts = currentValue.split(',');
+            
+            // Replace the last word with selectedTag
+            parts[parts.length - 1] = " " + selectedTag; // Add space before tag
+            let newTags = parts.map(tag => tag.trim()).filter(tag => tag !== "");
+
+            // Remove duplicates
+            newTags = [...new Set(newTags)];
+
+            // Add trailing comma and space
+            input.value = newTags.join(", ") + ", ";
+
+            // Clear suggestions box
+            document.getElementById("suggestions").innerHTML = "";
+        }
     </script>
 </body>
 </html>
