@@ -326,6 +326,7 @@ if (isset($_POST["add-to-cart"])) {
                 }
 
                 $vector_text = trim(strtolower(
+                    ($row['name']??'').''.
                     ($row['tags'] ?? '')
                 ));
 
@@ -466,7 +467,7 @@ if (isset($_POST["add-to-cart"])) {
                                                   <?php if (($row['stock'] ?? 0) > 0) { ?>
                                                       <span class="price-amount">NPR <?php echo number_format($row['price']); ?></span>
                                                   <?php } else { ?>
-                                                      <span class="out-of-stock">Out of Stock</span>
+                                                      <span class="out-of-stock" style="color: gray;">Out of Stock</span>
                                                   <?php } ?>
                                               </div>
                                           </a>
