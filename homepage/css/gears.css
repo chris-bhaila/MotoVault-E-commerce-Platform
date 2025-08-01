@@ -314,8 +314,8 @@
 
 /*PRODUCTS SECTION*/
 .all-products {
-    margin-left: 30vh;
-    margin-right: 30vh;
+    margin-left: 20vh;
+    margin-right: 20vh;
     margin-top: 10vh;
     margin-bottom: 10vh;
 }
@@ -328,7 +328,7 @@
 }
 
 .all-products .product {
-    width: 30%; /* Adjust width so that three items fit in one row */
+    width: 20%; /* Adjust width so that three items fit in one row */
     display: flex;
     flex-direction: column; /* Stack items vertically */
     align-items: center; /* Center-align items horizontally */

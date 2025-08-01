@@ -83,3 +83,77 @@ body, html {
     gap: 40px; /* Add some space between the boxes */
     margin-left: 13vh; 
 }
+
+.new-products {
+    margin-top: 2vh;
+    margin-bottom: 2vh;
+}
+
+.new-products .product-info {
+    display: flex;
+    flex-wrap: wrap; /* Allows wrapping to the next line */
+    gap: 20px; /* Space between items */
+    justify-content: space-around; /* Distribute items evenly */
+}
+
+.new-products .product {
+    width: 20%; /* Adjust width so that three items fit in one row */
+    display: flex;
+    flex-direction: column; /* Stack items vertically */
+    align-items: center; /* Center-align items horizontally */
+    justify-content: space-between; /* Distribute space evenly between items */
+    height: 50vh; /* Height of each product item */
+    padding: 10px; /* Optional: Add padding */
+    text-align: center; /* Center-align text */
+    margin-bottom: 3vh;
+}
+
+.new-products img {
+    width: 400px; /* Make image take full width of its container */
+    height: 350px; /* Maintain aspect ratio */
+    margin-top: 10px;
+    padding-left: 30px;
+    padding-right: 30px;
+    object-fit: cover; /* Cover the container while maintaining aspect ratio */
+    cursor: pointer;
+    transition: transform 0.3s ease-in-out;
+    margin-bottom: 5vh;
+}
+
+.new-products img:hover {
+    transform: scale(1.14);
+}
+
+.new-products .product .box {
+    display: flex;
+    flex-direction: column; /* Stack items vertically */
+    align-items: center; /* Center-align items horizontally */
+    justify-content: space-between; /* Evenly distribute items */
+    flex-grow: 1; /* Allow the box to grow and fill available space */
+    gap: 10px; /* Space between items */
+}
+
+.new-products .product .name {
+    font-size: 18px;
+}
+
+.new-products .product .price {
+    font-size: 18px;
+    color: green;
+}
+
+.new-products .product .l-stock {
+    color: red;
+    font-size: 20px;
+}
+
+.new-products h1 {
+    margin-left: 8vh;
+}
+
+.new-products .filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 40px; /* Add some space between the boxes */
+    margin-left: 13vh; 
+}

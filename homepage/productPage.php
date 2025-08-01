@@ -279,222 +279,184 @@ if (isset($_POST["add-to-cart"])) {
             </div>
           </div>
             <?php
-            // Enhanced Product Recommendation System with Debugging
+// Enhanced Product Recommendation System with Debugging
 
-            $target_id = $product_id; // the product the user is viewing or wants similar items to
+                $target_id = $product_id; // the product the user is viewing or wants similar items to
 
-            // Debug: Check if target_id is valid
-            if (empty($target_id)) {
-                echo "<p>Error: No target product ID provided.</p>";
-                exit;
-            }
-
-            echo "<!-- Debug: Target ID = $target_id -->";
-
-            // $sql = "
-            //     SELECT p.product_id, p.name,
-            //         COALESCE(b.name, '') AS brand_name,
-            //         COALESCE(c.name, '') AS category_name,
-            //         COALESCE(s.name, '') AS sub_cat_name
-            //     FROM motoproducts p
-            //     LEFT JOIN brands b ON p.brand_fid = b.brand_id
-            //     LEFT JOIN categories c ON p.category_fid = c.category_id
-            //     LEFT JOIN sub_category s ON p.sub_cat_fid = s.sub_cat_id
-            //     WHERE p.product_id IS NOT NULL
-            // ";
-
-            $sql = "
-                SELECT product_id, name, COALESCE(tags, '') AS tags
-                FROM motoproducts
-                WHERE product_id IS NOT NULL
-            ";
-
-
-            $products_query = mysqli_query($conn, $sql);
-
-            if (!$products_query) {
-                echo "<p>Error: Database query failed - " . mysqli_error($conn) . "</p>";
-                exit;
-            }
-
-            $products = [];
-            $target_exists = false;
-
-            while ($row = mysqli_fetch_assoc($products_query)) {
-                if ($row['product_id'] == $target_id) {
-                    $target_exists = true;
-                }
-
-                $vector_text = trim(strtolower(
-                    ($row['name']??'').''.
-                    ($row['tags'] ?? '')
-                ));
-
-                if (empty($vector_text)) {
-                    continue;
-                }
-
-                $products[] = [
-                    'id' => (int)$row['product_id'],
-                    'vector' => $vector_text
-                ];
-            }
-
-            echo "<!-- Debug: Found " . count($products) . " products -->";
-            echo "<!-- Debug: Target exists = " . ($target_exists ? 'true' : 'false') . " -->";
-
-            if (!$target_exists) {
-                echo "<p>Error: Target product not found in database.</p>";
-                exit;
-            }
-
-            if (count($products) < 2) {
-                echo "<p>Not enough products for recommendations.</p>";
-                exit;
-            }
-
-            $data = [
-                'target_id' => (int)$target_id,
-                'products' => $products
-            ];
-
-            // Create temporary file instead of passing JSON as argument
-            $temp_file = tempnam(sys_get_temp_dir(), 'recommendations_');
-            file_put_contents($temp_file, json_encode($data));
-
-            // Debug: Check if Python script exists
-            $python_script = 'app.py';
-            if (!file_exists($python_script)) {
-                echo "<p>Error: Python script '$python_script' not found.</p>";
-                unlink($temp_file);
-                exit;
-            }
-
-            // Execute Python script with temp file
-            $command = "python $python_script " . escapeshellarg($temp_file) . " 2>&1";
-            echo "<!-- Debug: Command = $command -->";
-            echo "<!-- Debug: Temp file = $temp_file -->";
-
-            $output = shell_exec($command);
-
-            // Clean up temp file
-            unlink($temp_file);
-            echo "<!-- Debug: Python output = " . htmlspecialchars($output) . " -->";
-
-            if (empty($output)) {
-                echo "<p>Error: No output from Python script.</p>";
-                exit;
-            }
-
-            // Clean the output - remove any extra whitespace/newlines
-            $output = trim($output);
-
-            // Check if output looks like an error object
-            if (strpos($output, '"error"') !== false) {
-                $error_data = json_decode($output, true);
-                if (isset($error_data['error'])) {
-                    echo "<p>Python Error: " . htmlspecialchars($error_data['error']) . "</p>";
-                    if (isset($error_data['traceback'])) {
-                        echo "<pre>Traceback: " . htmlspecialchars($error_data['traceback']) . "</pre>";
-                    }
+                if (empty($target_id)) {
+                    echo "<p>Error: No target product ID provided.</p>";
                     exit;
                 }
-            }
 
-            $similar_ids = json_decode($output, true);
+                echo "<!-- Debug: Target ID = $target_id -->";
+                $sql = "
+                    SELECT product_id, name, COALESCE(tags, '') AS tags
+                    FROM motoproducts
+                    WHERE product_id IS NOT NULL
+                ";
 
-            if (json_last_error() !== JSON_ERROR_NONE) {
-                echo "<p>Error: Invalid JSON from Python script - " . json_last_error_msg() . "</p>";
-                echo "<p>Raw output: " . htmlspecialchars($output) . "</p>";
-                exit;
-            }
+                $products_query = mysqli_query($conn, $sql);
 
-            echo "<!-- Debug: Similar IDs raw = " . htmlspecialchars(print_r($similar_ids, true)) . " -->";
-            echo "<!-- Debug: Similar IDs type = " . gettype($similar_ids) . " -->";
-
-            echo '<div class="recommended-products">';
-
-            if (is_array($similar_ids) && count($similar_ids) > 0) {
-                // Debug each ID before filtering
-                echo "<!-- Debug: Checking each ID: -->";
-                foreach ($similar_ids as $id) {
-                    echo "<!-- ID: " . var_export($id, true) . " (type: " . gettype($id) . ", is_numeric: " . (is_numeric($id) ? 'true' : 'false') . ") -->";
+                if (!$products_query) {
+                    echo "<p>Error: Database query failed - " . mysqli_error($conn) . "</p>";
+                    exit;
                 }
 
-                // More flexible ID validation
-                $ids = [];
-                foreach ($similar_ids as $id) {
-                    if (is_numeric($id) && $id > 0) {
-                        $ids[] = (int)$id;
-                    } elseif (is_string($id) && ctype_digit($id) && $id > 0) {
-                        $ids[] = (int)$id;
-                    }
-                }
+                $products = [];
+                $target_exists = false;
+                $user_id = $_SESSION['UID'];
+                $ordered_ids = [];
 
-                echo "<!-- Debug: Valid IDs after filtering: " . print_r($ids, true) . " -->";
+                if ($user_id) {
+                    $order_sql = "
+                        SELECT DISTINCT product_id 
+                        FROM c_orders 
+                        WHERE user_id = $user_id
+                    ";
 
-                if (empty($ids)) {
-                    echo "<p>No valid product IDs returned. Check Python script output format.</p>";
-                    echo "<p>Expected: array of integers, Got: " . htmlspecialchars($output) . "</p>";
-                } else {
-                    $ids_list = implode(',', $ids);
-
-                    $query = mysqli_query($conn, "SELECT * FROM motoproducts WHERE product_id IN ($ids_list) ORDER BY FIELD(product_id, $ids_list)");
-
-                    if (!$query) {
-                        echo "<p>Error: Failed to fetch recommended products - " . mysqli_error($conn) . "</p>";
+                    $order_result = mysqli_query($conn, $order_sql);
+                    if ($order_result) {
+                        while ($row = mysqli_fetch_assoc($order_result)) {
+                            $ordered_ids[] = (int)$row['product_id'];
+                        }
                     } else {
-                        $found_products = 0;?>
-                       <div class="recom-container">
-                          <h2>Recommended Products</h2>
-                          <div class="r-container">
-                              <div class="r-products">
-                                  <?php
-                                  // Your existing PHP logic stays the same, just update the HTML inside the while loop:
-                                  while ($row = mysqli_fetch_assoc($query)) {
-                                  ?>
-                                      <div class="r-info">
-                                          <a href="productPage.php?id=<?php echo $row['product_id']; ?>" class="product-link">
-                                              <img src="../admin/products/<?php echo $row['image'] ?? 'default.jpg'; ?>"
-                                                  alt="<?php echo htmlspecialchars($row['name'] ?? 'Unnamed Product'); ?>"
-                                                  class="product-image">
-                                              
-                                              <div class="product-info">
-                                                  <div class="product-name"><?php echo $row['name']; ?></div>
-                                              </div>
-                                              
-                                              <div class="product-price">
-                                                  <?php if (($row['stock'] ?? 0) > 0) { ?>
-                                                      <span class="price-amount">NPR <?php echo number_format($row['price']); ?></span>
-                                                  <?php } else { ?>
-                                                      <span class="out-of-stock" style="color: gray;">Out of Stock</span>
-                                                  <?php } ?>
-                                              </div>
-                                          </a>
-                                          
-                                          <?php if (($row['stock'] ?? 0) <= 5 && ($row['stock'] ?? 0) > 0) { ?>
-                                              <div class="limited-stock">Limited Stock</div>
-                                          <?php } ?>
-                                      </div>
-                                  <?php
-                                  }
-                                  ?>
-                              </div>
-                          </div>
-                      </div>
-                        <?php
-                        // if ($found_products === 0) {
-                        //     echo "<p>No recommended products found in database.</p>";
-                        // }
-                        // else {
-                        //     echo "<p>Showing " . count($ids) . " recommended products.</p>";
-                        // }
+                        echo "<!-- Debug: Failed to fetch ordered products - " . mysqli_error($conn) . " -->";
                     }
                 }
-            } else {
-                echo "<p>No recommendations available.</p>";
-            }
-            ?>
+
+                while ($row = mysqli_fetch_assoc($products_query)) {
+                    if ($row['product_id'] == $target_id) {
+                        $target_exists = true;
+                    }
+
+                    $vector_text = trim(strtolower(
+                        ($row['name'] ?? '') . ' ' .
+                        ($row['tags'] ?? '')
+                    ));
+
+                    if (empty($vector_text)) {
+                        continue;
+                    }
+
+                    $products[] = [
+                        'id' => (int)$row['product_id'],
+                        'vector' => $vector_text,
+                        'ordered' => in_array((int)$row['product_id'], $ordered_ids)
+                    ];
+                }
+
+                if (!$target_exists) {
+                    echo "<p>Error: Target product not found in database.</p>";
+                    exit;
+                }
+
+                if (count($products) < 2) {
+                    echo "<p>Not enough products for recommendations.</p>";
+                    exit;
+                }
+
+                $data = [
+                    'target_id' => (int)$target_id,
+                    'ordered_ids' => $ordered_ids,
+                    'products' => $products
+                ];
+
+                $temp_file = tempnam(sys_get_temp_dir(), 'recommendations_');
+                file_put_contents($temp_file, json_encode($data));
+
+                $python_script = 'app.py';
+                if (!file_exists($python_script)) {
+                    echo "<p>Error: Python script '$python_script' not found.</p>";
+                    unlink($temp_file);
+                    exit;
+                }
+
+                $command = "python $python_script " . escapeshellarg($temp_file) . " 2>&1";
+                $output = shell_exec($command);
+                unlink($temp_file);
+
+                if (empty($output)) {
+                    echo "<p>Error: No output from Python script.</p>";
+                    exit;
+                }
+
+                $output = trim($output);
+
+                if (strpos($output, '"error"') !== false) {
+                    $error_data = json_decode($output, true);
+                    if (isset($error_data['error'])) {
+                        echo "<p>Python Error: " . htmlspecialchars($error_data['error']) . "</p>";
+                        if (isset($error_data['traceback'])) {
+                            echo "<pre>Traceback: " . htmlspecialchars($error_data['traceback']) . "</pre>";
+                        }
+                        exit;
+                    }
+                }
+
+                $similar_products = json_decode($output, true);
+
+                if (json_last_error() !== JSON_ERROR_NONE || !is_array($similar_products)) {
+                    echo "<p>Error: Invalid JSON from Python script - " . json_last_error_msg() . "</p>";
+                    echo "<p>Raw output: " . htmlspecialchars($output) . "</p>";
+                    exit;
+                }
+
+                echo '<div class="recommended-products">';
+                if (count($similar_products) > 0) {
+                    ?>
+                    <div class="recom-container">
+                        <h2>Recommended Products</h2>
+                        <div class="r-container">
+                            <div class="r-products">
+                                <?php
+                                foreach ($similar_products as $similar) {
+                                    if (!isset($similar['product_id'], $similar['score'])) continue;
+                                    $sim_id = (int)$similar['product_id'];
+                                    $sim_score = round($similar['score'] * 100, 2);
+
+                                    $query = mysqli_query($conn, "SELECT * FROM motoproducts WHERE product_id = $sim_id");
+                                    while ($row = mysqli_fetch_assoc($query)) {
+                                        ?>
+                                        <div class="r-info">
+                                            <a href="productPage.php?id=<?php echo $row['product_id']; ?>" class="product-link">
+                                                <img src="../admin/products/<?php echo $row['image'] ?? 'default.jpg'; ?>"
+                                                    alt="<?php echo htmlspecialchars($row['name'] ?? 'Unnamed Product'); ?>"
+                                                    class="product-image">
+
+                                                <div class="product-info">
+                                                    <div class="product-name"><?php echo $row['name']; ?></div>
+                                                </div>
+
+                                                <div class="product-price">
+                                                    <?php if (($row['stock'] ?? 0) > 0) { ?>
+                                                        <span class="price-amount">NPR <?php echo number_format($row['price']); ?></span>
+                                                    <?php } else { ?>
+                                                        <span class="out-of-stock" style="color: gray;">Out of Stock</span>
+                                                    <?php } ?>
+                                                </div>
+
+                                                <div class="cs">
+                                                    <p>Similarity: <?php echo $sim_score; ?>%</p>
+                                                </div>
+                                                <?php if (($row['stock'] ?? 0) <= 5 && ($row['stock'] ?? 0) > 0) { ?>
+                                                    <div class="limited-stock">Limited Stock</div>
+                                                <?php } ?>
+                                            </a>
+
+                                        </div>
+                                        <?php
+                                    }
+                                }
+                                ?>
+                            </div>
+                        </div>
+                    </div>
+                    <?php
+                } else {
+                    echo "<p>No recommendations available.</p>";
+                }
+                ?>
+
           </div>
     </body>
 </html>

@@ -217,6 +217,12 @@ body
     text-decoration: none;
 }
 
+.r-info .cs
+{
+    font-size: 18px;
+    
+}
+
 .r-info .limited-stock
 {
     color: red;

@@ -1,8 +1,21 @@
 import sys
 import json
-import traceback
+import nltk
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
+import re
+from nltk.corpus import stopwords
+from nltk.stem import PorterStemmer
+
+stop_words = set(stopwords.words('english'))
+stemmer = PorterStemmer()
+
+def preprocess(text):
+    text = text.lower()  # Lowercase
+    text = re.sub(r'[^a-z0-9\s]', '', text)  # Remove punctuation/special chars
+    words = text.split()
+    words = [stemmer.stem(w) for w in words if w not in stop_words]
+    return ' '.join(words)
 
 try:
     # Read JSON from temporary file instead of command line argument
@@ -51,17 +64,16 @@ try:
         print(json.dumps({"error": "Need at least 2 products for comparison"}), flush=True)
         sys.exit(1)
     
-    corpus = [id_to_text[pid] for pid in product_ids]
+    corpus = [preprocess(id_to_text[pid]) for pid in product_ids]
     
     # TF-IDF and cosine similarity
     try:
         vectorizer = TfidfVectorizer(
-            stop_words='english',  # Remove common English words
-            min_df=1,  # Include terms that appear in at least 1 document
-            max_df=1.0,  # Include all terms
-            ngram_range=(1, 2),  # Include both single words and bigrams
-            lowercase=True,
-            strip_accents='ascii'
+             ngram_range=(1, 2),        # Add bigrams
+            min_df=2,                  # Ignore terms that appear in only 1 doc
+            max_df=0.85,               # Ignore very common terms
+            #stop_words='english',     # Remove common filler words
+            sublinear_tf=True    
         )
         
         tfidf_matrix = vectorizer.fit_transform(corpus)
@@ -81,9 +93,16 @@ try:
         if not top_ids:
             top_ids = [int(pid) for pid, score in scored if pid != target_id][:5]
         
-        # Ensure all IDs are integers and print as clean JSON array
-        result = [int(id) for id in top_ids if isinstance(id, (int, float)) and id > 0]
+        # Create a list of dicts with product_id and score
+        result = []
+        for pid, score in scored:
+            if pid != target_id:
+                result.append({"product_id": int(pid), "score": round(float(score), 4)})
+            if len(result) == 5:
+                break
+
         print(json.dumps(result), flush=True)
+
         
     except Exception as vectorizer_error:
         # If TF-IDF fails, return random similar products
