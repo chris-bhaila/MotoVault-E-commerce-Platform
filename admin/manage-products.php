@@ -18,6 +18,7 @@ session_start();
         $description = isset($_POST["description"]) ? addslashes($_POST["description"]) : '';
         $features = isset($_POST["features"]) ? addslashes($_POST["features"]) : '';
         $images = isset($_FILES['images']) ? $_FILES['images'] : [];
+        $tags = addslashes($_POST["tags"]);
     
         // Validation
         if (empty($sub_category)) {
@@ -65,8 +66,8 @@ session_start();
     
             if ($count_name == 0) {
                 $imagePath = !empty($uploadedFiles) ? addslashes($uploadedFiles[0]) : '';
-                $sql = "INSERT INTO motoproducts (name, price, brand_fid, category_fid, sub_cat_fid, stock, description, features, image)
-                        VALUES ('$name', '$price', '$brand', '$category', '$sub_category', '$stock', '$description', '$features', '$imagePath')";
+                $sql = "INSERT INTO motoproducts (name, price, brand_fid, category_fid, sub_cat_fid, stock, description, features, image, tags)
+                        VALUES ('$name', '$price', '$brand', '$category', '$sub_category', '$stock', '$description', '$features', '$imagePath','$tags')";
                 $result = mysqli_query($conn, $sql);
             if ($result) {
                 echo "<script>
@@ -251,8 +252,7 @@ session_start();
                     <tr>
                     <td>Tags:</td>
                     <td style="position: relative;">
-                        <textarea name="tags" class="custom-input" style="width: 20vw;" required onkeyup="showHint(this.value)" id="tags"></textarea>
-                        <div id="suggestions" style="position: absolute; background: white; width: 20vw; max-height: 150px; overflow-y: auto; z-index: 1000;"></div>
+                        <textarea name="tags" class="custom-input" style="width: 20vw;" required id="tags"></textarea>
                     </td>
                     <td></td>
                     </tr>
@@ -280,6 +280,7 @@ session_start();
                 <th class="" style="border-bottom: 2px solid #000;">Remaining Stock</th>
                 <th class="" style="border-bottom: 2px solid #000; text-align: left;">Description</th>
                 <th class="" style="border-bottom: 2px solid #000; text-align: left;">Features</th>
+                <th class="" style="border-bottom: 2px solid #000; text-align: left;">Tags</th>
             </tr>
                 <?php
                 $select_product = mysqli_query($conn, "SELECT * FROM `motoproducts` ORDER BY product_id DESC") or die('Query failed.');
@@ -296,6 +297,7 @@ session_start();
                             <td class="p-stock" style="text-align: center;"><?php echo $fetch_product['stock'] ?></td>
                             <td class="p-desc"><?php echo $fetch_product['description'] ?></td>
                             <td class="p-feat"><?php echo $fetch_product['features'] ?></td>
+                            <td class="p-tags"><?php echo $fetch_product['tags'] ?></td>
                             <!-- <td><input type="submit" name="update" value="Update" class="option-btn">
                             <input type="hidden" name="id" value="<?php echo $fetch_product['product_id'] ?>">
                                 <a href="manage-product.php?remove=<?php echo $fetch_product['product_id'] ?>" class="delete-btn" 

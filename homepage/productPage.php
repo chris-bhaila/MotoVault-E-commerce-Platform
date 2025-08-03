@@ -277,186 +277,60 @@ if (isset($_POST["add-to-cart"])) {
                     </form>
                 </div>
             </div>
-          </div>
-            <?php
-// Enhanced Product Recommendation System with Debugging
+          <?php
+            $product_id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
+            if (!$product_id) {
+                echo "<p>Invalid product ID</p>";
+                exit;
+            }
 
-                $target_id = $product_id; // the product the user is viewing or wants similar items to
+            // Run SBERT Python script
+            $command = escapeshellcmd("python sbert_recommender.py $product_id");
+            $output = shell_exec($command);
 
-                if (empty($target_id)) {
-                    echo "<p>Error: No target product ID provided.</p>";
-                    exit;
-                }
+            // Convert JSON result
+            $recommendations = json_decode($output, true);
 
-                echo "<!-- Debug: Target ID = $target_id -->";
-                $sql = "
-                    SELECT product_id, name, COALESCE(tags, '') AS tags
-                    FROM motoproducts
-                    WHERE product_id IS NOT NULL
-                ";
-
-                $products_query = mysqli_query($conn, $sql);
-
-                if (!$products_query) {
-                    echo "<p>Error: Database query failed - " . mysqli_error($conn) . "</p>";
-                    exit;
-                }
-
-                $products = [];
-                $target_exists = false;
-                $user_id = $_SESSION['UID'];
-                $ordered_ids = [];
-
-                if ($user_id) {
-                    $order_sql = "
-                        SELECT DISTINCT product_id 
-                        FROM c_orders 
-                        WHERE user_id = $user_id
-                    ";
-
-                    $order_result = mysqli_query($conn, $order_sql);
-                    if ($order_result) {
-                        while ($row = mysqli_fetch_assoc($order_result)) {
-                            $ordered_ids[] = (int)$row['product_id'];
-                        }
-                    } else {
-                        echo "<!-- Debug: Failed to fetch ordered products - " . mysqli_error($conn) . " -->";
-                    }
-                }
-
-                while ($row = mysqli_fetch_assoc($products_query)) {
-                    if ($row['product_id'] == $target_id) {
-                        $target_exists = true;
-                    }
-
-                    $vector_text = trim(strtolower(
-                        ($row['name'] ?? '') . ' ' .
-                        ($row['tags'] ?? '')
-                    ));
-
-                    if (empty($vector_text)) {
-                        continue;
-                    }
-
-                    $products[] = [
-                        'id' => (int)$row['product_id'],
-                        'vector' => $vector_text,
-                        'ordered' => in_array((int)$row['product_id'], $ordered_ids)
-                    ];
-                }
-
-                if (!$target_exists) {
-                    echo "<p>Error: Target product not found in database.</p>";
-                    exit;
-                }
-
-                if (count($products) < 2) {
-                    echo "<p>Not enough products for recommendations.</p>";
-                    exit;
-                }
-
-                $data = [
-                    'target_id' => (int)$target_id,
-                    'ordered_ids' => $ordered_ids,
-                    'products' => $products
-                ];
-
-                $temp_file = tempnam(sys_get_temp_dir(), 'recommendations_');
-                file_put_contents($temp_file, json_encode($data));
-
-                $python_script = 'app.py';
-                if (!file_exists($python_script)) {
-                    echo "<p>Error: Python script '$python_script' not found.</p>";
-                    unlink($temp_file);
-                    exit;
-                }
-
-                $command = "python $python_script " . escapeshellarg($temp_file) . " 2>&1";
-                $output = shell_exec($command);
-                unlink($temp_file);
-
-                if (empty($output)) {
-                    echo "<p>Error: No output from Python script.</p>";
-                    exit;
-                }
-
-                $output = trim($output);
-
-                if (strpos($output, '"error"') !== false) {
-                    $error_data = json_decode($output, true);
-                    if (isset($error_data['error'])) {
-                        echo "<p>Python Error: " . htmlspecialchars($error_data['error']) . "</p>";
-                        if (isset($error_data['traceback'])) {
-                            echo "<pre>Traceback: " . htmlspecialchars($error_data['traceback']) . "</pre>";
-                        }
-                        exit;
-                    }
-                }
-
-                $similar_products = json_decode($output, true);
-
-                if (json_last_error() !== JSON_ERROR_NONE || !is_array($similar_products)) {
-                    echo "<p>Error: Invalid JSON from Python script - " . json_last_error_msg() . "</p>";
-                    echo "<p>Raw output: " . htmlspecialchars($output) . "</p>";
-                    exit;
-                }
-
-                echo '<div class="recommended-products">';
-                if (count($similar_products) > 0) {
-                    ?>
-                    <div class="recom-container">
-                        <h2>Recommended Products</h2>
-                        <div class="r-container">
-                            <div class="r-products">
-                                <?php
-                                foreach ($similar_products as $similar) {
-                                    if (!isset($similar['product_id'], $similar['score'])) continue;
-                                    $sim_id = (int)$similar['product_id'];
-                                    $sim_score = round($similar['score'] * 100, 2);
-
-                                    $query = mysqli_query($conn, "SELECT * FROM motoproducts WHERE product_id = $sim_id");
-                                    while ($row = mysqli_fetch_assoc($query)) {
-                                        ?>
-                                        <div class="r-info">
-                                            <a href="productPage.php?id=<?php echo $row['product_id']; ?>" class="product-link">
-                                                <img src="../admin/products/<?php echo $row['image'] ?? 'default.jpg'; ?>"
-                                                    alt="<?php echo htmlspecialchars($row['name'] ?? 'Unnamed Product'); ?>"
-                                                    class="product-image">
-
-                                                <div class="product-info">
-                                                    <div class="product-name"><?php echo $row['name']; ?></div>
-                                                </div>
-
-                                                <div class="product-price">
-                                                    <?php if (($row['stock'] ?? 0) > 0) { ?>
-                                                        <span class="price-amount">NPR <?php echo number_format($row['price']); ?></span>
-                                                    <?php } else { ?>
-                                                        <span class="out-of-stock" style="color: gray;">Out of Stock</span>
-                                                    <?php } ?>
-                                                </div>
-
-                                                <div class="cs">
-                                                    <p>Similarity: <?php echo $sim_score; ?>%</p>
-                                                </div>
-                                                <?php if (($row['stock'] ?? 0) <= 5 && ($row['stock'] ?? 0) > 0) { ?>
-                                                    <div class="limited-stock">Limited Stock</div>
-                                                <?php } ?>
-                                            </a>
-
-                                        </div>
-                                        <?php
-                                    }
-                                }
-                                ?>
-                            </div>
+            if (!empty($recommendations)) {
+                echo '<div class="recommended-products-container">';
+                echo '<h2>Recommended Products</h2>';
+                echo '<div class="recommended-products-scroller">';
+                
+                foreach ($recommendations as $product) {
+                    $pid = htmlspecialchars($product['product_id']);
+                    $score = round($product['score'] * 100, 2); // Convert to percentage
+                    
+                    // Get full product details for each recommended product
+                    $query = mysqli_query($conn, "SELECT * FROM motoproducts WHERE product_id = $pid");
+                    if (mysqli_num_rows($query) > 0) {
+                        $row = mysqli_fetch_assoc($query);
+                        ?>
+                        <div class="recommended-product-card">
+                            <a href="productPage.php?id=<?php echo $row['product_id']; ?>" style="text-decoration: none;">
+                                <img src="../admin/products/<?php echo $row['image'] ?? 'default.jpg'; ?>"
+                                    alt="<?php echo htmlspecialchars($row['name']); ?>"
+                                    class="product-image">
+                                <div class="product-details">
+                                    <div class="product-name"><?php echo $row['name']; ?></div>
+                                    <div class="product-price">Rs. <?php echo number_format($row['price']); ?></div>
+                                    <div class="similarity-score">Similarity: <?php echo $score; ?>%</div>
+                                    <?php if (($row['stock'] ?? 0) <= 5 && ($row['stock'] ?? 0) > 0) { ?>
+                                        <div class="stock-status limited">Limited Stock</div>
+                                    <?php } elseif (($row['stock'] ?? 0) <= 0) { ?>
+                                        <div class="stock-status out">Out of Stock</div>
+                                    <?php } ?>
+                                </div>
+                            </a>
                         </div>
-                    </div>
-                    <?php
-                } else {
-                    echo "<p>No recommendations available.</p>";
+                        <?php
+                    }
                 }
-                ?>
+                
+                echo '</div></div>';
+            } else {
+                echo "<p>No recommendations available.</p>";
+            }
 
-          </div>
+            ?>
     </body>
 </html>

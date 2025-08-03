@@ -132,7 +132,7 @@ if (isset($_GET['remove'])) {
             border-radius: 5px;
             font-family: 'Monsterrat', sans-serif;
         }
-        #features,#description
+        #features,#description,#tags
         {
             width: 27em;
             height: 10em;
@@ -303,8 +303,7 @@ if (isset($_GET['remove'])) {
                 <tr>
                     <td>Tags:</td>
                     <td style="position: relative;">
-                        <textarea name="tags" class="custom-input" style="width: 20vw;" required onkeyup="showHint(this.value)" id="tags"></textarea>
-                        <div id="suggestions" style="position: absolute; background: white; width: 20vw; max-height: 150px; overflow-y: auto; z-index: 1000;"></div>
+                        <textarea name="tags" class="custom-input" required id="tags"></textarea>
                     </td>
                     <td></td>
                     </tr>
