@@ -1,5 +1,8 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script src="jquery-3.7.1.min.js"></script>
+<script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+
+
 <link rel="stylesheet" href="../mainFont.css">
 <?php
 include("../dbconn.php");
@@ -74,12 +77,15 @@ if (isset($_POST["add-to-cart"])) {
           ?></title>
       <link rel="stylesheet" href="css/button.css">
       <link rel="stylesheet" href="css/productPage.css">
-      <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
-      <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
+      <link rel="stylesheet" href="../mainFont.css">
+      <link rel="stylesheet" href="../mainFont2.css">
       <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
     </head>
+    
         <?php
             include("../header1.php");
+            ?>
+            <?php
             include("floatingCart.php");
         ?>
         <div class="pmain-container">
@@ -137,13 +143,41 @@ if (isset($_POST["add-to-cart"])) {
                                     echo "$points";
                                 ?></p>
                         </div>
-                        <input type="hidden" name="p-price" id="p-price" value="<?php echo $row['price']; ?>">
+                        <input type="hidden" name="p-price" id="p-price" value="
+                        <?php 
+                        if($row['discount_percent']!=NULL)
+                            {
+                                $truePrice = $row['price']-($row['discount_percent']/100)*$row['price'];
+                                echo $truePrice;
+                            } 
+                            else
+                            {
+                                echo $row['price'];
+                            }
+                        ?>">
+
                         <?php if ($row['stock'] > 0) { ?>
                             <input type="number" name="quantity" class="quantity" min="1" max="<?php echo $row['stock'];?>" value="1">
                         <?php } else {?>
 
                             <?php } ?>
-                        <p class="price"><?php echo "Rs. ".number_format($row['price']); ?></p>
+                        <p class="price">
+                        <?php 
+                        if($row['discount_percent']!=NULL)
+                            {
+                                $truePrice = $row['price'] - ($row['discount_percent'] / 100) * $row['price'];
+                                echo '<div style="display: flex; gap: 10px; align-items: center; font-size: 24px;">
+                                    <span style="color: red; text-decoration: line-through;">Rs. ' . number_format($row['price']) . '</span>
+                                    <span style="color: orange; font-weight: 500; font-size: 20px;">  ' . $row['discount_percent'] . '% off</span>
+                                </div>';
+                                echo '<p style=" font-size: 32px; color: green; font-weight: 500;">Rs. ' . number_format($truePrice) . '</p>';
+                            } 
+                            else
+                            {
+                                echo '<p style=" font-size: 32px; color: green; font-weight: 500;">Rs. ' . number_format($truePrice) . '</p>';
+                            }
+                        ?>
+                        </p>
                         <div class="buttons">
                             <?php if ($row['stock'] > 0) { ?>
                                 <input type="submit" name="add-to-cart" class="add-to-cart" value="Add to Cart">
@@ -194,29 +228,102 @@ if (isset($_POST["add-to-cart"])) {
                     }
                 }
             ?>
+            
+          <?php
+            $product_id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
+            if (!$product_id) {
+                echo "<p>Invalid product ID</p>";
+                exit;
+            }
+
+            // Run SBERT Python script
+            $command = escapeshellcmd("python sbert_recommender.py $product_id");
+            $output = shell_exec($command);
+
+            // Convert JSON result
+            $recommendations = json_decode($output, true);
+
+            if (!empty($recommendations)) {
+                echo '<div class="recommended-products-container">';
+                echo '<h2>Recommended Products</h2>';
+                echo '<div class="recommended-products-scroller">';
+                
+                foreach ($recommendations as $product) {
+                    $pid = htmlspecialchars($product['product_id']);
+                    $score = round($product['score'] * 100, 2); // Convert to percentage
+                    
+                    // Get full product details for each recommended product
+                    $query = mysqli_query($conn, "SELECT * FROM motoproducts WHERE product_id = $pid");
+                    $rev_query = mysqli_query($conn,"SELECT COUNT(*) as total_reviews, SUM(rating) as total_obtained_rating FROM review WHERE product_id=$pid");
+                    if (mysqli_num_rows($query) > 0) {
+                        $row = mysqli_fetch_assoc($query);
+                        ?>
+                        <div class="recommended-product-card">
+                            <a href="productPage.php?id=<?php echo $row['product_id']; ?>" style="text-decoration: none;">
+                                <img src="../admin/products/<?php echo $row['image'] ?? 'default.jpg'; ?>"
+                                    alt="<?php echo htmlspecialchars($row['name']); ?>"
+                                    class="product-image">
+                                <div class="product-details">
+                                    <div class="product-name"><?php echo $row['name']; ?></div>
+                                    <div class="product-price">Rs. <?php echo number_format($row['price']); ?></div>
+                                    <!-- <div class="similarity-score"></div> -->
+                                    <?php 
+                                    if(mysqli_num_rows($rev_query) > 0) {
+                                        $row1 = mysqli_fetch_assoc($rev_query);
+                                        $total_reviews = $row1['total_reviews'];
+                                        
+                                         if ($total_reviews == 0) {
+                                                echo '';
+                                                // Continue to the next product without stopping execution
+                                            } else {
+                                                $total_obtained_rating = $row1['total_obtained_rating']; // Sum of ratings
+                                                
+                                                // Each review has a maximum rating of 5
+                                                $total_obtainable_rating = $total_reviews * 5.0;
+                                                $satisfactory_rate = number_format(($total_obtained_rating / $total_obtainable_rating) * 5, 2);?>
+                                                <div class="product-review" style="color:gray;">Ratings: <?php echo $satisfactory_rate."/5 (".$total_reviews.")";?></div>
+                                                <?php
+                                            }
+                                            }else {
+                                            echo "No reviews found for this product.";
+                                        }
+                                            ?>
+                                </div>
+                            </a>
+                        </div>
+                        <?php
+                    }
+                }
+                
+                echo '</div></div>';
+            } else {
+                echo "<p>No recommendations available.</p>";
+            }
+
+            ?>
             <div class="review-container">
-                <h2>Reviews</h2>
                 <div class="user-review">
                     <?php
                         $select_review = mysqli_query($conn, "
-                            SELECT review.description,review.rating,review.review_date,user.name
-                            FROM review
-                            JOIN user ON review.user_id = user.id
-                            WHERE review.product_id='$product_id'
+                        SELECT review.description,review.rating,review.review_date,user.name
+                        FROM review
+                        JOIN user ON review.user_id = user.id
+                        WHERE review.product_id='$product_id'
                         ") or die('Query failed.');
                         $max_items = 11; // Set the maximum number of items to display
                         $item_count = 0;
                         if (mysqli_num_rows($select_review) > 0) {
+                            ?><h2>Reviews for this product</h2><?php
                             while ($fetch_review = mysqli_fetch_assoc($select_review)) {
                                 $review_date = strtotime($fetch_review['review_date']);
                                 $month = date('F', $review_date); // Full month name
                                 $year = date('Y', $review_date); // Full year
                                 $rating = $fetch_review['rating']; // Assuming rating is an integer between 1 and 5
-                                 if ($item_count <= $max_items) {
+                                if ($item_count <= $max_items) {
                                     ?>
                                     <div class="indiv-rev">
                                         <p style="font-size:16px;">
-                                            <?php echo $fetch_review['name'];
+                                            <?php echo '<b>'.$fetch_review['name'].'</b>';
                                             echo "<br>" . $month . ", " . $year;?>
                                         </p>
                                             <div class="rev-star">
@@ -250,11 +357,6 @@ if (isset($_POST["add-to-cart"])) {
                     <?php
                             }
                         }
-                        else
-                        {
-                            echo "<p style='margin-top: 8px;
-                                    margin-bottom: -8px;'>No Reviews Yet</p>";
-                        }
                     ?>
                 </div>
                 <div class="new-review">
@@ -273,64 +375,9 @@ if (isset($_POST["add-to-cart"])) {
                             ?>
                         </select><br>
                         <textarea name="desc" class="desc" style="font-size: 18px;" required></textarea><br>
-                        <input type="submit" value="Submit Review" name="submit" class="rev">
+                        <input type="submit" value="Submit Review" name="submit" class="rev" style="font-family: 'Monsterrat','sans-serif';">
                     </form>
                 </div>
             </div>
-          <?php
-            $product_id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
-            if (!$product_id) {
-                echo "<p>Invalid product ID</p>";
-                exit;
-            }
-
-            // Run SBERT Python script
-            $command = escapeshellcmd("python sbert_recommender.py $product_id");
-            $output = shell_exec($command);
-
-            // Convert JSON result
-            $recommendations = json_decode($output, true);
-
-            if (!empty($recommendations)) {
-                echo '<div class="recommended-products-container">';
-                echo '<h2>Recommended Products</h2>';
-                echo '<div class="recommended-products-scroller">';
-                
-                foreach ($recommendations as $product) {
-                    $pid = htmlspecialchars($product['product_id']);
-                    $score = round($product['score'] * 100, 2); // Convert to percentage
-                    
-                    // Get full product details for each recommended product
-                    $query = mysqli_query($conn, "SELECT * FROM motoproducts WHERE product_id = $pid");
-                    if (mysqli_num_rows($query) > 0) {
-                        $row = mysqli_fetch_assoc($query);
-                        ?>
-                        <div class="recommended-product-card">
-                            <a href="productPage.php?id=<?php echo $row['product_id']; ?>" style="text-decoration: none;">
-                                <img src="../admin/products/<?php echo $row['image'] ?? 'default.jpg'; ?>"
-                                    alt="<?php echo htmlspecialchars($row['name']); ?>"
-                                    class="product-image">
-                                <div class="product-details">
-                                    <div class="product-name"><?php echo $row['name']; ?></div>
-                                    <div class="product-price">Rs. <?php echo number_format($row['price']); ?></div>
-                                    <div class="similarity-score">Similarity: <?php echo $score; ?>%</div>
-                                    <?php if (($row['stock'] ?? 0) <= 5 && ($row['stock'] ?? 0) > 0) { ?>
-                                        <div class="stock-status limited">Limited Stock</div>
-                                    <?php } elseif (($row['stock'] ?? 0) <= 0) { ?>
-                                        <div class="stock-status out">Out of Stock</div>
-                                    <?php } ?>
-                                </div>
-                            </a>
-                        </div>
-                        <?php
-                    }
-                }
-                
-                echo '</div></div>';
-            } else {
-                echo "<p>No recommendations available.</p>";
-            }
-
-            ?>
     </body>
 </html>

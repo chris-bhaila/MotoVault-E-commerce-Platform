@@ -13,15 +13,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Products</title>
     <link rel="stylesheet" href="../mainFont.css">
+    <link rel="stylesheet" href="../mainFont2.css">
     <link rel="stylesheet" href="CSS/helmets.css">
 </head>
 <body>
-    <?php include("../header.php"); 
-    include("floatingCart.php");?>
+    <header style="font-family: 'Oswald', sans-serif;"><?php include("../header.php"); ?></header>
+    <?php include("floatingCart.php");?>
     
     <div class="page-content">
         <!-- Main content of your page -->
-        <div class="content">
+        <div class="content" style="font-family: 'Oswald', sans-serif;">
             <div class="left">
                 <h1>AGV PISTA GP R Winter Test 2018</h1>
                 <p>100% carbon fiber helmet offering unparalleled lightweight performance.</p>
@@ -29,7 +30,7 @@
             </div>
         </div>
 
-        <div class="category">
+        <div class="category" style="font-family: 'Monsterrat', sans-serif;">
             <h1 id="cat">Browse By Categories</h1>
             <div class="box-container">
             <?php
@@ -59,7 +60,7 @@
             </div>
         </div>
 
-        <div class="all-products">
+        <div class="all-products" style="font-family: 'Monsterrat', sans-serif;">
             <h1 id="pro">Our Products</h1>
             <div class="product-info" id="product-info">
                 <?php

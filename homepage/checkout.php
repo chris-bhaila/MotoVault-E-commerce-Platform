@@ -438,13 +438,6 @@ if (isset($_POST['order'])) {
                                 <tr style="height: 16px;"></tr>
                                 <tr>
                                     <td></td>
-                                    <td style="text-align: left; font-size: 20px;"><strong>13% VAT</strong></td>
-                                    <td colspan="3"></td>
-                                    <td style="text-align: center; font-size: 18px; color: green;"><?php echo "Rs. " . number_format(0.13*$total, 2); ?></td>
-                                </tr>
-                                <tr style="height: 16px;"></tr>
-                                <tr>
-                                    <td></td>
                                     <td style="text-align: left; font-size: 20px;"><strong>Delivery Charge</strong></td>
                                     <td colspan="3"></td>
                                     <td style="text-align: center; font-size: 18px; color: green;"><?php echo "Rs. " . number_format(250, 2); ?></td>
@@ -452,7 +445,7 @@ if (isset($_POST['order'])) {
                                 <tr style="height: 16px;"></tr>
                                 <tr>
                                     <?php
-                                        $grand_total=$total+0.13*$total+250;
+                                        $grand_total=$total+250;
                                     ?>
                                     <td></td>
                                     <td style="text-align: left; font-size: 26px;"><strong>Grand Total</strong></td>

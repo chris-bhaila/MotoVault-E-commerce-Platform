@@ -13,21 +13,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Products</title>
     <link rel="stylesheet" href="../mainFont.css">
+    <link rel="stylesheet" href="../mainFont2.css">
     <link rel="stylesheet" href="../subFont.css">
     <link rel="stylesheet" href="../Railroad.css">
     <link rel="stylesheet" href="css/motorParts.css">
 </head>
 <body>
-    <div class="header">
-        <?php include("../header.php"); 
-        include("floatingCart.php");?>
+    <div class="header" style="font-family: 'Oswald', sans-serif;">
+        <?php include("../header.php"); ?>
     </div>
-    <div class="content">
+        <?php include("floatingCart.php");?>
+    <div class="content" style="font-family: 'Oswald', sans-serif;">
         <h1>SPECIAL PARTS</h1>
         <p>UPGRADE YOUR RIDE TO THE NEXT LEVEL</p>
         <button class="slide" onclick="document.getElementById('pro').scrollIntoView({ behavior: 'smooth' });">Shop Now</button>
     </div>
-    <div class="page-content">
+    <div class="page-content" style="font-family: 'Monsterrat', sans-serif;">
         <!-- Main content of your page -->
         <div class="category">
             <h1 id="cat">Browse By Categories</h1>

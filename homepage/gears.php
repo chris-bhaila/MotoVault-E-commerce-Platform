@@ -13,22 +13,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Products</title>
     <link rel="stylesheet" href="../mainFont.css">
+    <link rel="stylesheet" href="../mainFont2.css">
     <link rel="stylesheet" href="css/gears.css">
 </head>
 <body>
-    <div class="header">
+    <div class="header" style="font-family: 'Oswald', sans-serif;">
         <?php include("../header.php"); ?>
     </div>
     <?php
         include("floatingCart.php");
     ?>
-    <div class="page-content">
+    <div class="page-content" style="font-family: 'Monsterrat', sans-serif;">
         <!-- Main content of your page -->
-        <div class="content">
+        <div class="content" style="font-family: 'Oswald', sans-serif;">
             <div class="top">
                 <div class="top-left">
                     <h1>
-                        WINTER SALE <br> IS ON!!
+                        MONSOON SALE <br> IS ON!!
                     </h1>
                     <h2>
                         GRAB SOME GEAR AND DISAPPEAR

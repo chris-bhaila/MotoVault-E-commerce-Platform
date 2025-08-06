@@ -24,6 +24,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Products by <?php echo $brandName;?></title>
     <link rel="stylesheet" href="../mainFont.css">
+    <link rel="stylesheet" href="../mainFont2.css">
     <style>
         .all-products {
             margin-left: 30vh;
@@ -94,8 +95,12 @@
     </style>
 </head>
 <body>
+    <header style="font-family: 'Oswald','sans-serif';">
     <?php
         include("../header1.php");
+    ?>
+    </header>
+    <?php
         include("floatingCart.php")
     ?>
     <div class="all-products">

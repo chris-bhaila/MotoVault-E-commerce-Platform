@@ -20,7 +20,7 @@ $name = explode(" ", $row1['name'])[0];
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Header</title>
-    <link rel="stylesheet" href="mainFont.css">
+    <link rel="stylesheet" href="mainFont2.css">
     <style>
         body {
             margin: 0;
@@ -29,6 +29,7 @@ $name = explode(" ", $row1['name'])[0];
 
         header {
             position: relative;
+            font-family: 'Oswald','sans-serif';
             top: 0;
             left: 0;
             width: 100%;

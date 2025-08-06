@@ -21,7 +21,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Header</title>
-    <link rel="stylesheet" href="mainFont.css">
+    <link rel="stylesheet" href="mainFont2.css">
     <style>
         body{
             margin: 0;
@@ -30,6 +30,7 @@
         header
         {
             position: absolute;
+            font-family: 'Oswald','sans-serif';
             top: 0;
             left: 0;
             width: 100%;
@@ -118,7 +119,7 @@
     </style>
 </head>
 <body>
-    <header>
+    <header style="font-family: 'Oswald', sans-serif;">
         <nav>
             <ul>
                 <li class="animated"><a href="homepage.php">Home</a></li>

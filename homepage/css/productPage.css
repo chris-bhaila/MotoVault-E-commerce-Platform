@@ -24,21 +24,23 @@ body
         .info-container .right .h-name {
             font-size: 40px;
             font-weight: bolder;
+            margin-bottom: -2px;
         }
         .info-container .right .price {
             /* text-decoration: line-through; */
-            font-size: 30px;
+            font-size: 32px;
             color: green;
+            font-weight: 500;
         }
         .info-container .right .desc {
             text-align: justify;
-            font-size: 17px;
+            font-size: 22px;
         }
         .info-container .right .feature h3 {
             font-size: 30px;
         }
         .info-container .right .feature .feat {
-            font-size: 20px;
+            font-size: 22px;
         }
         .info-container .right .brand {
             font-size: 25px;
@@ -47,6 +49,7 @@ body
         .info-container .right .l-stock {
             color: red;
             font-size: 20px;
+            margin-bottom: 2px;
         }
         .review-container {
             display: flex;
@@ -55,9 +58,10 @@ body
             padding-left: 2%;
             padding-right: 2%;
         }
-        .review-container h2
+        .review-container .user-review h2
         {
             margin-bottom: -10px;
+            font-size: 28px;
         }
         .review-container .user-review
         {
@@ -235,12 +239,66 @@ body
 }
 
 
+/* Recommendations styling */
+.recommended-products-container {
+    margin-top: 40px;
+    padding: 20px 0;
+    border-top: 1px solid #eee;
+}
+
+.recommended-products-scroller {
+    display: flex;
+    overflow-x: auto;
+    gap: 20px;
+    padding: 10px 0;
+    scrollbar-width: thin;
+}
+
+.recommended-product-card {
+    min-width: 200px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    overflow: hidden;
+    transition: transform 0.2s;
+    justify-content: space-around;
+}
+
+.recommended-product-card:hover {
+    transform: translateY(-5px);
+}
+
+.product-image {
+    width: 100%;
+    height: 220px;
+    object-fit: cover;
+}
+
+.product-details {
+    padding: 10px;
+}
+
+.similarity-score {
+    color: #666;
+    font-size: 0.9em;
+}
+
+.stock-status {
+    font-size: 0.8em;
+    margin-top: 5px;
+}
+
+.stock-status.limited {
+    color: orange;
+}
+
+.stock-status.out {
+    color: red;
+}
 /*RECOMMENDATION SECTION*/
-/* Recommended Products - Centered Text & Clean Meta */
+/* Recommended Products - Visible Scrollbar */
 .recommended-products-container {
     margin: 50px 0;
     padding: 0 30px;
-    text-decoration: none;
     position: relative;
 }
 
@@ -249,7 +307,6 @@ body
     margin-bottom: 25px;
     color: #333;
     text-align: center;
-    text-decoration: none;
     font-weight: 600;
 }
 
@@ -257,9 +314,7 @@ body
     display: flex;
     overflow-x: auto;
     gap: 25px;
-    padding: 15px 5px 35px;
-    scrollbar-width: thin;
-    scrollbar-color: transparent transparent;
+    padding: 15px 5px 25px; /* Added bottom padding for scrollbar */
 }
 
 .recommended-product-card {
@@ -268,7 +323,6 @@ body
     border-radius: 10px;
     overflow: hidden;
     box-shadow: 0 3px 10px rgba(0,0,0,0.1);
-    padding-bottom: 40px;
     transition: all 0.3s ease;
     text-align: center;
 }
@@ -279,7 +333,7 @@ body
 }
 
 .product-link {
-    text-decoration: none !important; /* This removes the underline */
+    text-decoration: none;
     color: inherit;
     display: block;
 }
@@ -300,12 +354,11 @@ body
     object-fit: contain;
 }
 
-.product-info {
+.product-details {
     padding: 0 15px 15px;
 }
 
 .product-name {
-    text-decoration: none;
     font-size: 16px;
     font-weight: 600;
     margin-bottom: 10px;
@@ -316,63 +369,29 @@ body
 .product-price {
     font-size: 18px;
     font-weight: 700;
-    color: #e63946;
-    text-decoration: none;
+    color: green;
     margin-bottom: 15px;
 }
 
 .product-meta {
     display: flex;
-    text-decoration: none;
     justify-content: center;
     gap: 15px;
     font-size: 13px;
 }
 
 .similarity-score {
-    text-decoration: none;
     color: #666;
 }
 
 .stock-status {
-    text-decoration: none;
     font-weight: 500;
 }
 
 .stock-status.limited {
-    text-decoration: none;
     color: #d4a017;
 }
 
 .stock-status.out {
-    text-decoration: none;
     color: #dc3545;
-}
-
-/* Scrollbar styles remain the same */
-.recommended-products-scroller::-webkit-scrollbar {
-    height: 6px;
-    opacity: 0;
-    transition: opacity 0.5s ease;
-}
-
-.recommended-products-scroller:hover::-webkit-scrollbar {
-    opacity: 1;
-}
-
-.recommended-products-scroller::-webkit-scrollbar-track {
-    background: rgba(245, 245, 245, 0);
-}
-
-.recommended-products-scroller:hover::-webkit-scrollbar-track {
-    background: rgba(245, 245, 245, 0.1);
-}
-
-.recommended-products-scroller::-webkit-scrollbar-thumb {
-    background-color: rgba(200, 200, 200, 0);
-    transition: background-color 0.5s ease;
-}
-
-.recommended-products-scroller:hover::-webkit-scrollbar-thumb {
-    background-color: rgba(200, 200, 200, 0.3);
 }

@@ -32,6 +32,11 @@ body, html {
     padding: 10px; /* Optional: Add padding */
     text-align: center; /* Center-align text */
     margin-bottom: 15vh;
+    text-decoration: none; /* Remove underline from product links */
+}
+
+.all-products .product:hover {
+    text-decoration: none; /* Ensure no underline on hover */
 }
 
 .all-products img {
@@ -94,6 +99,7 @@ body, html {
     flex-wrap: wrap; /* Allows wrapping to the next line */
     gap: 20px; /* Space between items */
     justify-content: space-around; /* Distribute items evenly */
+    text-decoration: none;
 }
 
 .new-products .product {
@@ -106,6 +112,11 @@ body, html {
     padding: 10px; /* Optional: Add padding */
     text-align: center; /* Center-align text */
     margin-bottom: 3vh;
+    text-decoration: none; /* Remove underline from product links */
+}
+
+.new-products .product:hover {
+    text-decoration: none; /* Ensure no underline on hover */
 }
 
 .new-products img {

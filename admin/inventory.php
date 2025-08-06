@@ -152,6 +152,16 @@
                 <li>Manage product info and stock</li>
                 <li>Delete product</li>
             </a>
+            <a href="discount.php" class="sub-categories">
+                <h3>Add Discount for Products&#x2192;</h3>
+                <li>Add/Update discounts</li>
+                <li>Remove discounts</li>
+            </a>
+            <a href="discountBrand.php" class="sub-categories">
+                <h3>Add Discount for Brands&#x2192;</h3>
+                <li>Add/Update discounts</li>
+                <li>Remove discounts</li>
+            </a>
         </div>
     </div>
 </body>

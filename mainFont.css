@@ -1,8 +1,8 @@
 @font-face {
-    font-family: 'Oswald';
-    src: url('Oswald.ttf') format('truetype');
+    font-family: 'Monsterrat';
+    src: url('Monsterrat.ttf') format('truetype');
 }
 
 body {
-    font-family: 'Oswald', sans-serif;
+    font-family: 'Monsterrat', sans-serif;
 }

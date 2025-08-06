@@ -13,6 +13,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Brands</title>
     <link rel="stylesheet" href="../mainFont.css">
+    <link rel="stylesheet" href="../mainFont2.css">
     <style>
         .brand-strip
         {
@@ -91,8 +92,12 @@
     </style>
 </head>
 <body>
+    <header style="font-family: 'Oswald','sans-serif';">
     <?php
         include("../header1.php");
+    ?>
+    </header>
+    <?php
         include("floatingCart.php");
     ?>
     <div class="brand-strip">
@@ -101,7 +106,7 @@
             Brands we offer
             --------------------------------------
         </h1>
-            <div class="box-container">
+            <div class="box-container" style="font-family: 'Monsterrat','sans-serif';">
                 <?php
                     $select_product = mysqli_query($conn, "SELECT * FROM `brands`") or die('Query failed.');
 

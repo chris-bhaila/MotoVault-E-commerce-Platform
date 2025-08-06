@@ -14,6 +14,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>MotoVault</title>
         <link rel="stylesheet" href="../mainFont.css">
+        <link rel="stylesheet" href="../mainFont2.css">
         <link rel="stylesheet" href="css/homepage.css">
     </head>
 <body>
@@ -26,7 +27,7 @@
             <source src="tron1.mp4" type="video/mp4">
             Your browser does not support the video tag.
         </video>
-        <div class="content">
+        <div class="content" style="font-family: 'Oswald', sans-serif;">
             <div class="left">
                 <h1>REV UP YOUR RIDE WITH MOTOVAULT</h1>
                 <p>Top-tier gears and accessories for the ultimate motorbike experience</p>
@@ -44,7 +45,7 @@
                 </div>
             </div> -->
 
-        <div class="heading1" id="head">
+        <div class="heading1" id="head" style="font-family: 'Oswald', sans-serif;">
             <h1>
             ----------------------------------------       
             Enjoy MotoVault to the fullest       
@@ -63,14 +64,14 @@
                 <h1>Gears and Accessories</h1>
             </div>
         </div>
-        <div class="heading2" id="head2">
+        <div class="heading2" id="head2" style="font-family: 'Oswald', sans-serif;">
             <h1>
             ----------------------------------------       
             Browse By Your Favorite Brands     
             --------------------------------------
             </h1>
         </div>
-        <div class="brand-strip">
+        <div class="brand-strip" style="font-family: 'Monsterrat', sans-serif;">
             <div class="box-container">
                 <?php
                     $select_product = mysqli_query($conn, "SELECT * FROM `brands`") or die('Query failed.');
@@ -111,7 +112,7 @@
             </div>
         </div> -->
         
-        <div class="heading3" id="head3" style="text-align: center; margin-top: 13vh; margin-bottom: 12vh;">
+        <div class="heading3" id="head3" style="text-align: center; margin-top: 13vh; margin-bottom: 12vh; font-family: 'Oswald', sans-serif;">
             <h1>
             ----------------------------------------       
             Enjoy secure and stressfree shopping with MotoVault     
