@@ -273,7 +273,7 @@
                         // Calculate Subtotal for current order and add to Grand Total
                         $subtotal = $fetch_user['prod_price'] * $fetch_user['prod_quantity'];
                         $grand_total += $subtotal;
-                        $grand_total1 = number_format($grand_total + 0.13*$grand_total + 250.00,2);
+                        $grand_total1 = number_format($grand_total + 250.00,2);
                         // Display current order row
                         ?>
                         <tr style="text-align: left;">

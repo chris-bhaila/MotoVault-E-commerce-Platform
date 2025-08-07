@@ -101,7 +101,7 @@
         include("floatingCart.php");
     ?>
     <div class="brand-strip">
-        <h1 style="text-align: center; font-size: 2.5em; margin-bottom: 3vh;">
+        <h1 style="text-align: center; font-size: 2.5em; margin-bottom: 3vh; font-family:'Oswald','sans-serif';">
             --------------------------------------
             Brands we offer
             --------------------------------------

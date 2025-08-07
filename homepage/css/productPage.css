@@ -32,6 +32,7 @@ body
             color: green;
             font-weight: 500;
         }
+
         .info-container .right .desc {
             text-align: justify;
             font-size: 22px;
@@ -41,10 +42,6 @@ body
         }
         .info-container .right .feature .feat {
             font-size: 22px;
-        }
-        .info-container .right .brand {
-            font-size: 25px;
-            color: green;
         }
         .info-container .right .l-stock {
             color: red;
@@ -264,7 +261,7 @@ body
 }
 
 .recommended-product-card:hover {
-    transform: translateY(-5px);
+    transform: translateY(-10px);
 }
 
 .product-image {
@@ -369,7 +366,6 @@ body
 .product-price {
     font-size: 18px;
     font-weight: 700;
-    color: green;
     margin-bottom: 15px;
 }
 

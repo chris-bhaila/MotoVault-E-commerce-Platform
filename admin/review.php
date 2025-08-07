@@ -74,7 +74,7 @@
                             <tr>
                                 <td style="text-align: center; font-weight: 500; font-size: 18px;"><?php echo $index++;?></td>
                                 <td style="text-align: center; font-weight: 500; font-size: 18px;"><?php echo $fetch_product['product_id'];?></td>
-                                <td style="text-align: center;"><img src="products/<?php echo $fetch_product['image']; ?>" alt="" height="250"></td>
+                                <td style="text-align: center;"><img src="products/<?php echo $fetch_product['image']; ?>" alt="" width="350px" height="auto"></td>
                                 <td style="font-weight: 500; font-size: 18px;"><?php echo $fetch_product['name']; ?></td>
                                 <td style="text-align: center; font-weight: 500; font-size: 20px;">
                                     <?php

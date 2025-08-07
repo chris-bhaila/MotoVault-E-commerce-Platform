@@ -45,7 +45,7 @@ body, html {
     margin-top: 10px;
     padding-left: 30px;
     padding-right: 30px;
-    object-fit: cover; /* Cover the container while maintaining aspect ratio */
+    object-fit: contain; /* Cover the container while maintaining aspect ratio */
     cursor: pointer;
     transition: transform 0.3s ease-in-out;
     margin-bottom: 5vh;
@@ -167,4 +167,44 @@ body, html {
     flex-wrap: wrap;
     gap: 40px; /* Add some space between the boxes */
     margin-left: 13vh; 
+}
+
+.all-products .search-box{
+    margin-left: 8vh;
+    margin-bottom: 5vh;
+    font-family: 'Monsterrat','sans-serif';
+    display: flex;
+}
+.search {
+    min-height: 40px;
+    resize: vertical;
+    width: 146vh;
+    height: 5vh;
+    padding: 8px;
+    font-size: 24px;
+    border-radius: 6px;
+}
+
+.search-results {
+    margin-top: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    max-height: 300px;
+    overflow-y: auto;
+    display: none; /* Hidden by default */
+    
+}
+
+.search-result-item {
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+}
+
+.search-result-item:hover {
+    background-color: #f5f5f5;
+}
+
+.search-result-item:last-child {
+    border-bottom: none;
 }

@@ -113,7 +113,7 @@ if (isset($_POST["add-to-cart"])) {
                                 // For example
 
                                 // Prepare the SQL query
-                                $sql = mysqli_query($conn, "SELECT mp.*, b.name
+                                $sql = mysqli_query($conn, "SELECT mp.*, b.name, b.brand_id
                                                             FROM motoproducts mp
                                                             JOIN brands b ON mp.brand_fid = b.brand_id
                                                             WHERE mp.product_id = $product_id");
@@ -124,7 +124,7 @@ if (isset($_POST["add-to-cart"])) {
                                     // Fetch the associative array
                                     $row = mysqli_fetch_assoc($sql);
                                     // Display the brand name
-                                    echo $row['name'];
+                                    ?><a href="brandProducts.php?id=<?php echo $row['brand_id']; ?>" class="brand-name" style="text-decoration: none; color: green"><?php echo $row['name']; ?></a><?php
                                 }
                                 else
                                 {
@@ -143,18 +143,12 @@ if (isset($_POST["add-to-cart"])) {
                                     echo "$points";
                                 ?></p>
                         </div>
-                        <input type="hidden" name="p-price" id="p-price" value="
-                        <?php 
-                        if($row['discount_percent']!=NULL)
-                            {
-                                $truePrice = $row['price']-($row['discount_percent']/100)*$row['price'];
-                                echo $truePrice;
-                            } 
-                            else
-                            {
-                                echo $row['price'];
-                            }
+                        <input type="hidden" name="p-price" id="p-price" value="<?php
+                            echo ($row['discount_percent'] != NULL)
+                                ? $row['price'] - ($row['discount_percent'] / 100) * $row['price']
+                                : $row['price'];
                         ?>">
+
 
                         <?php if ($row['stock'] > 0) { ?>
                             <input type="number" name="quantity" class="quantity" min="1" max="<?php echo $row['stock'];?>" value="1">
@@ -163,15 +157,20 @@ if (isset($_POST["add-to-cart"])) {
                             <?php } ?>
                         <p class="price">
                         <?php 
-                        if($row['discount_percent']!=NULL)
-                            {
-                                $truePrice = $row['price'] - ($row['discount_percent'] / 100) * $row['price'];
-                                echo '<div style="display: flex; gap: 10px; align-items: center; font-size: 24px;">
-                                    <span style="color: red; text-decoration: line-through;">Rs. ' . number_format($row['price']) . '</span>
-                                    <span style="color: orange; font-weight: 500; font-size: 20px;">  ' . $row['discount_percent'] . '% off</span>
-                                </div>';
-                                echo '<p style=" font-size: 32px; color: green; font-weight: 500;">Rs. ' . number_format($truePrice) . '</p>';
-                            } 
+                            $truePrice = $row['price'] - ($row['discount_percent'] / 100) * $row['price'];
+                            if ($row['discount_percent'] != NULL) { ?>
+                            <div style="display: flex; gap: 10px; align-items: center; font-size: 24px; margin-top: 10px;">
+                                <span style="color: red; text-decoration: line-through;">
+                                    Rs. <?php echo number_format($row['price']); ?>
+                                </span>
+                                <div class="discount-badge" style="color: white; font-weight: 500; font-size: 20px; background-color: red; padding: 4px 8px; border-radius: 5px;">
+                                    <?php echo '-'.$row['discount_percent']; ?>% off
+                                </div>
+                            </div>
+                            <p style="font-size: 32px; color: green; font-weight: 500; margin: 0;">
+                                Rs. <?php echo number_format($truePrice); ?>
+                            </p>
+                        <?php }
                             else
                             {
                                 echo '<p style=" font-size: 32px; color: green; font-weight: 500;">Rs. ' . number_format($truePrice) . '</p>';
@@ -188,46 +187,6 @@ if (isset($_POST["add-to-cart"])) {
                     </form>
                 </div>
             </div>
-            <?php
-                if(isset($_POST['submit']))
-                {
-                    $userid=$_SESSION['UID'];
-                    $desc=$_POST['desc'];
-                    $rating=$_POST['star'];
-                    $sql = "INSERT INTO review (user_id,product_id,description,rating) VALUES ('$userid','$product_id','$desc','$rating')";
-                    $res=mysqli_query($conn,$sql);
-                    if($res)
-                    {
-                        ?>
-                            <script>
-                                swal({
-                                    title: "Thank you for reviewing this product!",
-                                    text: "Your review has been posted.",
-                                    icon: "success",
-                                    button: "Okay"
-                                }).then(() => {
-                                    window.location.href = "productPage.php?id=<?php echo $product_id; ?>";
-                                });
-                            </script>
-                        <?php
-                    }
-                    else
-                    {
-                        ?>
-                            <script>
-                                swal({
-                                    icon: "error",
-                                    title: "Oops...",
-                                    text: "Something went wrong!",
-                                    button: "Okay"
-                                }).then(() => {
-                                    window.location.href = "productPage.php?id=<?php echo $product_id; ?>";
-                                });
-                            </script>
-                        <?php
-                    }
-                }
-            ?>
             
           <?php
             $product_id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
@@ -245,7 +204,7 @@ if (isset($_POST["add-to-cart"])) {
 
             if (!empty($recommendations)) {
                 echo '<div class="recommended-products-container">';
-                echo '<h2>Recommended Products</h2>';
+                echo '<h2>You Also Might Wanna Check These Out</h2>';
                 echo '<div class="recommended-products-scroller">';
                 
                 foreach ($recommendations as $product) {
@@ -258,39 +217,54 @@ if (isset($_POST["add-to-cart"])) {
                     if (mysqli_num_rows($query) > 0) {
                         $row = mysqli_fetch_assoc($query);
                         ?>
-                        <div class="recommended-product-card">
-                            <a href="productPage.php?id=<?php echo $row['product_id']; ?>" style="text-decoration: none;">
-                                <img src="../admin/products/<?php echo $row['image'] ?? 'default.jpg'; ?>"
-                                    alt="<?php echo htmlspecialchars($row['name']); ?>"
-                                    class="product-image">
-                                <div class="product-details">
-                                    <div class="product-name"><?php echo $row['name']; ?></div>
-                                    <div class="product-price">Rs. <?php echo number_format($row['price']); ?></div>
-                                    <!-- <div class="similarity-score"></div> -->
-                                    <?php 
-                                    if(mysqli_num_rows($rev_query) > 0) {
-                                        $row1 = mysqli_fetch_assoc($rev_query);
-                                        $total_reviews = $row1['total_reviews'];
-                                        
-                                         if ($total_reviews == 0) {
-                                                echo '';
-                                                // Continue to the next product without stopping execution
-                                            } else {
-                                                $total_obtained_rating = $row1['total_obtained_rating']; // Sum of ratings
-                                                
-                                                // Each review has a maximum rating of 5
-                                                $total_obtainable_rating = $total_reviews * 5.0;
-                                                $satisfactory_rate = number_format(($total_obtained_rating / $total_obtainable_rating) * 5, 2);?>
-                                                <div class="product-review" style="color:gray;">Ratings: <?php echo $satisfactory_rate."/5 (".$total_reviews.")";?></div>
-                                                <?php
-                                            }
-                                            }else {
-                                            echo "No reviews found for this product.";
-                                        }
-                                            ?>
-                                </div>
-                            </a>
-                        </div>
+                        <div class="recommended-product-card" style="padding: 20px 10px; display: flex; flex-direction: column; justify-content: space-around; align-items: center; text-align: center; height: 50vh;">
+                                <a href="productPage.php?id=<?php echo $row['product_id']; ?>" style="text-decoration: none; color: inherit; width: 100%;">
+                                    <img src="../admin/products/<?php echo $row['image'] ?? 'default.jpg'; ?>"
+                                        alt="<?php echo htmlspecialchars($row['name']); ?>"
+                                        class="product-image" style="width: 100%; height: 300px;">
+
+                                    <div class="product-details" style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                                        <div class="product-name" style="font-weight: 500; font-size: 16px;"><?php echo $row['name']; ?></div>
+
+                                        <div class="product-price" style="margin: 10px 0;">
+                                            <?php 
+                                                $truePrice = $row['price'] - ($row['discount_percent'] / 100) * $row['price'];
+
+                                                if (!empty($row['discount_percent']) && $row['discount_percent'] > 0) { ?>
+                                                    <div style="display: flex; justify-content: center; align-items: center; gap: 8px; margin-bottom: 4px;">
+                                                        <span style="color: red; text-decoration: line-through; font-size: 16px;">
+                                                            Rs. <?php echo number_format($row['price']); ?>
+                                                        </span>
+                                                        <div style="background-color: red; color: white; font-weight: 500; font-size: 14px; padding: 3px 6px; border-radius: 4px;">
+                                                            -<?php echo $row['discount_percent']; ?>% off
+                                                        </div>
+                                                    </div>
+                                                    <p style="color: green; font-size: 20px; font-weight: 600; margin: 0;">
+                                                        Rs. <?php echo number_format($truePrice); ?>
+                                                    </p>
+                                                <?php } else { ?>
+                                                    <p style="color: green; font-size: 20px; font-weight: 600; margin: 0;">
+                                                        Rs. <?php echo number_format($row['price']); ?>
+                                                    </p>
+                                                <?php } ?>
+                                        </div>
+
+                                        <?php 
+                                        if (mysqli_num_rows($rev_query) > 0) {
+                                            $row1 = mysqli_fetch_assoc($rev_query);
+                                            $total_reviews = $row1['total_reviews'];
+                                            if ($total_reviews > 0) {
+                                                $total_obtained_rating = $row1['total_obtained_rating'];
+                                                $satisfactory_rate = number_format(($total_obtained_rating / ($total_reviews * 5.0)) * 5, 2); ?>
+                                                <div class="product-review" style="color: gray; font-size: 14px; margin-top: 6px;">
+                                                    Ratings: <?php echo $satisfactory_rate . "/5 (" . $total_reviews . ")"; ?>
+                                                </div>
+                                            <?php }
+                                        } ?>
+                                    </div>
+                                </a>
+                            </div>
+
                         <?php
                     }
                 }
@@ -378,6 +352,46 @@ if (isset($_POST["add-to-cart"])) {
                         <input type="submit" value="Submit Review" name="submit" class="rev" style="font-family: 'Monsterrat','sans-serif';">
                     </form>
                 </div>
+                <?php
+                if(isset($_POST['submit']))
+                {
+                    $userid=$_SESSION['UID'];
+                    $desc=$_POST['desc'];
+                    $rating=$_POST['star'];
+                    $sql = "INSERT INTO review (user_id,product_id,description,rating) VALUES ('$userid','$product_id','$desc','$rating')";
+                    $res=mysqli_query($conn,$sql);
+                    if($res)
+                    {
+                        ?>
+                            <script>
+                                swal({
+                                    title: "Thank you for reviewing this product!",
+                                    text: "Your review has been posted.",
+                                    icon: "success",
+                                    button: "Okay"
+                                }).then(() => {
+                                    window.location.href = "productPage.php?id=<?php echo $product_id; ?>";
+                                });
+                            </script>
+                        <?php
+                    }
+                    else
+                    {
+                        ?>
+                            <script>
+                                swal({
+                                    icon: "error",
+                                    title: "Oops...",
+                                    text: "Something went wrong!",
+                                    button: "Okay"
+                                }).then(() => {
+                                    window.location.href = "productPage.php?id=<?php echo $product_id; ?>";
+                                });
+                            </script>
+                        <?php
+                    }
+                }
+            ?>
             </div>
     </body>
 </html>

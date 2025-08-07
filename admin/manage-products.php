@@ -66,8 +66,8 @@ session_start();
     
             if ($count_name == 0) {
                 $imagePath = !empty($uploadedFiles) ? addslashes($uploadedFiles[0]) : '';
-                $sql = "INSERT INTO motoproducts (name, price, brand_fid, category_fid, sub_cat_fid, stock, description, features, image, tags)
-                        VALUES ('$name', '$price', '$brand', '$category', '$sub_category', '$stock', '$description', '$features', '$imagePath','$tags')";
+                $sql = "INSERT INTO motoproducts (name, price, brand_fid, category_fid, sub_cat_fid, stock, description, features, image, tags, discount_percent)
+                        VALUES ('$name', '$price', '$brand', '$category', '$sub_category', '$stock', '$description', '$features', '$imagePath','$tags',NULL)";
                 $result = mysqli_query($conn, $sql);
             if ($result) {
                 echo "<script>
@@ -173,6 +173,13 @@ session_start();
             color: black;
             background-color: white;
         }
+        .product-img {
+            width: 200px;
+            object-fit: contain;
+            display: block;
+            margin: auto;
+        }
+
     </style>
 </head>
 
@@ -201,7 +208,7 @@ session_start();
                             if (mysqli_num_rows($select_product) > 0) {
                                 while ($fetch_product = mysqli_fetch_assoc($select_product)) {
                                     ?>
-                                    <input type="radio" name="category" value="<?php echo $fetch_product['category_id']; ?>" onclick="loadSubCategories(this.value)">
+                                    <input type="radio" name="category" value="<?php echo $fetch_product['category_id']; ?>" onclick="loadSubCategories(this.value)" required>
                                     <?php echo $fetch_product['name']; ?>
                                     <?php
                                 }
@@ -228,7 +235,7 @@ session_start();
                                             echo "<br>";
                                         }
                                         ?>
-                                        <input type="radio" name="brand" value="<?php echo $fetch_product['brand_id']; ?>" class="brand">
+                                        <input type="radio" name="brand" value="<?php echo $fetch_product['brand_id']; ?>" class="brand" required>
                                         <?php echo $fetch_product['name']; ?>
                                         <?php
                                     }
@@ -252,7 +259,7 @@ session_start();
                     <tr>
                     <td>Tags:</td>
                     <td style="position: relative;">
-                        <textarea name="tags" class="custom-input" style="width: 20vw;" required id="tags"></textarea>
+                        <textarea name="tags" class="custom-input" style="width: 20vw; height:13vh;" required id="tags"></textarea>
                     </td>
                     <td></td>
                     </tr>
@@ -289,7 +296,7 @@ session_start();
                 ?>
                         <tr>
                             <td class="p-id" style="border-right: 2px solid #000;"><?php echo $fetch_product['product_id'] ?></td>
-                            <td class="p-image" style="text-align: center;"><img src="products/<?php echo $fetch_product['image']; ?>" alt="" height="100"></td>
+                            <td class="p-image" style="text-align: center;"><img src="products/<?php echo $fetch_product['image']; ?>" alt="" class="product-img"></td>
                             <td class="p-name"><?php echo $fetch_product['name'] ?></td>
                             <td class="p-price"><?php echo $fetch_product['price'] ?></td>
                             <td class="p-cat" style="text-align: center;"><?php echo $fetch_product['category_fid'] ?></td>

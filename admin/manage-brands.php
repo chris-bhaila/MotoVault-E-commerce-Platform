@@ -8,9 +8,9 @@
         die();
     }
     if (isset($_POST["submit"])) {
-        $name = stripslashes($_POST["name"]);
-        $name = str_replace("'", "''", $name); // Escape single quotes in name
-        
+        $name = mysqli_real_escape_string($conn, $_POST['name']);
+        $desc = mysqli_real_escape_string($conn, $_POST['desc']);
+
         if ($_FILES["image"]["error"] === 4) {
             echo "<script>
             alert('No file uploaded. Please upload an image.');
@@ -34,8 +34,8 @@
                 </script>";
             } else {
                 move_uploaded_file($tmpName, 'brands/' . $fileName);
-                $query = "INSERT INTO brands (`name`, `image`) 
-                        VALUES('$name','$fileName')";
+                $query = "INSERT INTO brands (`name`, `image`, `brand_desc`) 
+                        VALUES('$name','$fileName','$desc')";
                 $res = mysqli_query($conn, $query);
                 if ($res) {
                     echo "<script>
@@ -59,9 +59,10 @@
 
     if (isset($_POST['update'])) {
         $update_id = stripslashes($_POST['id']);
-        $update_name = stripslashes($_POST['p-name']);
+        $update_name = mysqli_real_escape_string($conn, $_POST['p-name']);
+        $update_desc = mysqli_real_escape_string($conn, $_POST['p-desc']);
         
-        if (mysqli_query($conn, "UPDATE brands SET name='$update_name' WHERE brand_id='$update_id'")) {
+        if (mysqli_query($conn, "UPDATE brands SET name='$update_name', brand_desc='$update_desc' WHERE brand_id='$update_id'")) {
             echo "<script>
                 document.addEventListener('DOMContentLoaded', function() {
                     Swal.fire({
@@ -158,7 +159,7 @@
         .brandsav table {
             margin-left: 10px;
             padding: 20px;
-            width: 70%;
+            width: 100%;
             box-shadow: 0 7px 25px rgba(0, 0, 0, 0.12);
             border-radius: 20px;
         }
@@ -235,15 +236,15 @@
             text-align: center;
             text-decoration: none;
             color: white;
-            background-color: rgb(42, 42, 205);
+            background-color: black;
             cursor: pointer;
             transition: 0.3s ease-in;
             border-radius: 12px;
-            border: 1px solid blue;
+            border: 1px solid black;
         }
         .brandsav .option-btn:hover
         {
-            color: blue;
+            color: black;
             background-color: white;
         }
     </style>
@@ -265,6 +266,10 @@
                     <td><input type="file" name="image" accept=".jpg, .jpeg, .png" class="image1"></td>
                 </tr>
                 <tr>
+                    <td><label class="desc">Description</label></td>
+                    <td><textarea name="desc" class="desc" style="width: 20vw; height: 13vh;" required></textarea></td>
+                </tr>
+                <tr>
                     <td></td>
                     <td><input type="submit" name="submit" value="Add" class="btn"></td>
                 </tr>
@@ -278,7 +283,8 @@
                     <th class="p-id" style="border-right: 1px solid black;" width="10%">S.N.</th>
                     <th class="p-image" width="40%">Image</th>
                     <th class="p-name">Name</th>
-                    <th class="p-action" width="30%">Action</th>
+                    <th class="p-desc" width="40%">Description</th>
+                    <th class="p-action" width="20%">Action</th>
                 </tr>
                 <?php
                 $index=1;
@@ -291,6 +297,7 @@
                                 <td class="p-id" style="text-align: center; border-right: 1px solid black;"><?php echo $index++; ?></td>
                                 <td class="p-image" style="text-align: center;"><img src="brands/<?php echo $fetch_product['image']; ?>" alt="" height="100"></td>
                                 <td class="p-name" style="text-align: center;"><textarea name="p-name"><?php echo $fetch_product['name']; ?></textarea></td>
+                                <td class="p-name" style="text-align: center;"><textarea name="p-desc" style="width: 20vw; height: 14vh; font-size: 14px;"><?php echo $fetch_product['brand_desc']; ?></textarea></td>
                                 <td style="text-align: center;">
                                     <input type="submit" name="update" value="Update" class="option-btn">
                                     <input type="hidden" name="id" value="<?php echo $fetch_product['brand_id']; ?>">

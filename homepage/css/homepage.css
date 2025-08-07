@@ -272,6 +272,6 @@ body, html {
 .ship p,
 .return p
 {
-    font-weight: lighter;
-    opacity: 0.75;
+    color: black;
+    font-weight: 500;
 }

@@ -51,7 +51,7 @@
                     <th width="10%" style="border-bottom: 2px solid #000;">Date of Completion</th>
                 </tr>
                 <?php
-                $select_user = mysqli_query($conn, "SELECT * FROM `c_orders` ORDER BY placed_date ASC") or die('Query failed.');
+                $select_user = mysqli_query($conn, "SELECT * FROM `c_orders` ORDER BY placed_date DESC") or die('Query failed.');
                 if (mysqli_num_rows($select_user) > 0) {
                     $prev_bulk_id = null; // Store previous bulk_id for comparison
                     $grand_total = 0; // Grand Total for each bulk_id
@@ -124,7 +124,7 @@
                         // Calculate Subtotal for current order and add to Grand Total
                         $subtotal = $fetch_user['prod_price'] * $fetch_user['prod_quantity'];
                         $grand_total += $subtotal;
-                        $grand_total1 = number_format($grand_total + 0.13*$grand_total + 250.00,2);
+                        $grand_total1 = number_format($grand_total + 250.00,2);
                         // Display current order row
                         ?>
                         <tr style="text-align: left;">

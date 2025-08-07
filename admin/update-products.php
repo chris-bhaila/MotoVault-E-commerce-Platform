@@ -338,7 +338,7 @@ if (isset($_GET['remove'])) {
                     <tr>
                         <form action="" method="post" class="product-form">
                             <td class="p-id"><?php echo $fetch_product['product_id']; ?></td>
-                            <td class="p-image"><img src="products/<?php echo $fetch_product['image']; ?>" alt="" height="100"></td>
+                            <td class="p-image"><img src="products/<?php echo $fetch_product['image']; ?>" alt="" width="200px"></td>
                             <td class="p-name"><?php echo $fetch_product['name']; ?></td>
                             <td class="p-price"><?php echo $fetch_product['price']; ?></td>
                             <td class="p-stock" style="text-align: center;"><?php echo $fetch_product['stock']; ?></td>

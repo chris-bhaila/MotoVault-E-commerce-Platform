@@ -202,6 +202,33 @@
     border-color: #f6f610;
     backdrop-filter: blur(4px);
 }
+.slide2
+{
+    border-color: transparent;
+    font-size: 18px;
+    background-color: #f6f610;
+    padding: 10px;
+    padding-left: 30px;
+    padding-right: 30px;
+    color: black;
+    font-family: 'Oswald', sans-serif;
+    letter-spacing: 0.2px;
+    font-weight:bolder;
+    border-radius: 1px;
+    transition: 0.2s ease-in;
+    cursor: pointer;
+    border-radius: 6px;
+    animation: fadeInDown;
+    animation-duration: 2s;
+    margin-left: 30px;
+}
+.slide2:hover
+{
+    background-color: transparent;
+    color: #f6f610;
+    border-color: #f6f610;
+    backdrop-filter: blur(4px);
+}
 
 /*Category section*/
 .category
@@ -222,7 +249,7 @@
 .category .box-container .box
 {
     padding-top: 3vh;
-    margin-left: 5vh;
+    margin-left: 4vh;
     transition: transform 0.3s ease-in-out;
 }
 .category .box-container .box:hover
