@@ -213,7 +213,7 @@
     margin-top: 10px;
     padding-left: 30px;
     padding-right: 30px;
-    object-fit: cover; /* Cover the container while maintaining aspect ratio */
+    object-fit: contain; /* Cover the container while maintaining aspect ratio */
     cursor: pointer;
     transition: transform 0.3s ease-in-out;
     margin-bottom: 5vh;

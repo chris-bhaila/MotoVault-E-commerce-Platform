@@ -117,7 +117,7 @@
                                 <a href="brandProducts.php?id=<?php echo $fetch_product['brand_id'];?>">
                                     <img src="../admin/brands/<?php echo $fetch_product['image']; ?>" 
                                 alt="<?php echo $fetch_product['name']; ?>" class="image">
-                                <div class="name"><?php echo $fetch_product['name']; ?></div></a>
+                                <div class="name" style="font-weight: 500;"><?php echo $fetch_product['name']; ?></div></a>
                             </form>
                 <?php
                         }

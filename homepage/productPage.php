@@ -107,7 +107,7 @@ if (isset($_POST["add-to-cart"])) {
                             } ?>
                         </div>
                         <div class="brand">
-                            <p class="r-brand" style="display: inline; color: black;">Brand: </p>
+                            <p class="r-brand" style="display: inline; color: black; font-size:30px;">Brand: </p>
                             <?php
                                 // Assume $product_id is given
                                 // For example
@@ -124,7 +124,7 @@ if (isset($_POST["add-to-cart"])) {
                                     // Fetch the associative array
                                     $row = mysqli_fetch_assoc($sql);
                                     // Display the brand name
-                                    ?><a href="brandProducts.php?id=<?php echo $row['brand_id']; ?>" class="brand-name" style="text-decoration: none; color: green"><?php echo $row['name']; ?></a><?php
+                                    ?><a href="brandProducts.php?id=<?php echo $row['brand_id']; ?>" class="brand-name" style="text-decoration: none; color: green; font-size:30px;"><?php echo $row['name']; ?></a><?php
                                 }
                                 else
                                 {

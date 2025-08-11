@@ -4,7 +4,7 @@
     if(!isset($_SESSION['UID'])) 
     {
         header('location: ../SignIn.php');
-        die(); // Stop further execution
+        die();
     }
     if (isset($_GET['id'])) 
     {
@@ -26,53 +26,59 @@
     <link rel="stylesheet" href="../mainFont.css">
     <link rel="stylesheet" href="../mainFont2.css">
     <style>
+        body {
+            font-family: 'Oswald', sans-serif;
+        }
+        
         .all-products {
-            margin-left: 30vh;
-            margin-right: 30vh;
+            margin-left: 15vh;
+            margin-right: 15vh;
             margin-top: 6vh;
             margin-bottom: 10vh;
         }
 
         .all-products .product-info {
             display: flex;
-            flex-wrap: wrap; /* Allows wrapping to the next line */
-            gap: 20px; /* Space between items */
-            justify-content: space-around; /* Distribute items evenly */
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: space-around;
         }
 
         .all-products .product {
-            width: 30%; /* Adjust width so that three items fit in one row */
+            width: 20%;
             display: flex;
-            flex-direction: column; /* Stack items vertically */
-            align-items: center; /* Center-align items horizontally */
-            justify-content: space-between; /* Distribute space evenly between items */
-            height: 50vh; /* Height of each product item */
-            padding: 10px; /* Optional: Add padding */
-            text-align: center; /* Center-align text */
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            height: 50vh;
+            padding: 10px;
+            text-align: center;
             margin-bottom: 15vh;
         }
+        
         .all-products img {
-            width: 400px; /* Make image take full width of its container */
-            height: 350px; /* Maintain aspect ratio */
+            width: 400px;
+            height: 350px;
             margin-top: 10px;
             padding-left: 30px;
             padding-right: 30px;
-            object-fit: contain; /* Cover the container while maintaining aspect ratio */
+            object-fit: contain;
             cursor: pointer;
             transition: transform 0.3s ease-in-out;
             margin-bottom: 5vh;
         }
+        
         .all-products img:hover {
             transform: scale(1.14);
         }
 
         .all-products .product .box {
             display: flex;
-            flex-direction: column; /* Stack items vertically */
-            align-items: center; /* Center-align items horizontally */
-            justify-content: space-between; /* Evenly distribute items */
-            flex-grow: 1; /* Allow the box to grow and fill available space */
-            gap: 10px; /* Space between items */
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            flex-grow: 1;
+            gap: 10px;
         }
 
         .all-products .product .name {
@@ -92,6 +98,7 @@
         .all-products h1 {
             margin-left: 8vh;
         }
+        
         .product {
             position: relative;
             width: 250px;
@@ -111,6 +118,7 @@
             border-radius: 5px;
             z-index: 5;
         }
+        
         .main-container {
             margin-top: 20px;
             padding: 20px;
@@ -120,23 +128,31 @@
 
         .main-container .product-details {
             border-radius: 20px;
-            margin-right: 15px;
-            padding-left: 50px;
-            padding-right: 50px;
-            padding-bottom: 50px;
-            padding-top: 20px;
+            padding: 50px;
             box-shadow: 0 7px 25px rgba(0, 0, 0, 0.12);
             display: flex;
             justify-content: space-between;
+            align-items: center;
         }
 
-        .main-container .product-details .brand {
-            font-size: 20px;
+        .main-container .product-info {
+            width: 70%;
+        }
+
+        .brand-image-container {
             width: 30%;
             display: flex;
-            justify-content: space-around;
-            text-align: center;
+            justify-content: center;
             align-items: center;
+            padding: 20px;
+        }
+
+        .brand-image-container img {
+            max-width: 100%;
+            max-height: 200px;
+            width: auto;
+            height: auto;
+            object-fit: contain;
         }
 
         .main-container .product-details .cat,
@@ -145,43 +161,30 @@
             font-size: 20px;
         }
 
-        .main-container .product-details .brand img {
-            width: 120px;
-            height: fit-content;
-            margin-left: 30px;
+        .main-container h1 {
+            margin-bottom: 20px;
         }
 
-        .main-container .product-details .img-row {
-            display: flex;
-            text-align: center;
-            justify-content: center;
+        .main-container h2 {
+            margin-bottom: 15px;
         }
-
-        .main-container .product-details .img-row img {
-            width: 15vw;
-            align-self: center;
-            height: fit-content;
-        }
-
     </style>
 </head>
 <body>
-    <header style="font-family: 'Oswald','sans-serif';">
-    <?php
-        include("../header1.php");
-    ?>
+    <header>
+        <?php include("../header1.php"); ?>
     </header>
-    <?php
-        include("floatingCart.php")
-    ?>
+    
+    <?php include("floatingCart.php") ?>
+    
     <div class="main-container">
         <div class="product-details">
             <div class="product-info">
                 <h1><?php echo $row['name']; ?></h1>
                 <h2><u>Brand Overview</u></h2>
-                <p style="font-size: 20px; width: 80%; text-align: justify;;"><?php echo $row['brand_desc'];?></p>
+                <p style="font-size: 20px; width: 100%; text-align: justify;"><?php echo $row['brand_desc'];?></p>
                 <?php
-                    $brand_id = $row['brand_id']; // assuming $row contains brand details
+                    $brand_id = $row['brand_id'];
 
                     $subCatQuery = "
                         SELECT DISTINCT s.name AS sub_cat_name
@@ -197,8 +200,7 @@
                     while ($subCatRow = mysqli_fetch_assoc($subCatResult)) {
                         $subCategories[] = $subCatRow['sub_cat_name'];
                     }
-                    ?>
-
+                ?>
                 <p class="cat" style="color: black;">
                     <b>Associated Categories:</b> 
                     <?php 
@@ -208,13 +210,14 @@
                         echo 'No products found in any sub-category.';
                     }
                     ?>
-                </p><br>
+                </p>
             </div>
-            <div class="img-row" style="display: flex; justify-content: center; width: 60%;">
+            <div class="brand-image-container">
                 <img src="../admin/brands/<?php echo $row['image']; ?>" alt="<?php echo $row['name']; ?>">
             </div>
         </div>
     </div>
+    
     <div class="all-products">
         <h1 id="pro">Products by <?php echo $brandName; ?></h1>
         <div class="product-info" id="product-info">
@@ -235,15 +238,14 @@
                                     alt="<?php echo $fetch_product['name']; ?>" class="image">
                             </a>
                             <div class="box">
-                                <div class="name"><?php echo $fetch_product['name']; ?></div>
+                                <div class="name" style="font-weight: bolder;"><?php echo $fetch_product['name']; ?></div>
                             </div>
-                            <div class="price">NPR <?php echo number_format($fetch_product['price']); ?></div>
+                            <div class="price" style="font-weight: 600;">NPR <?php echo number_format($fetch_product['price']); ?></div>
                             <?php if ($fetch_product['stock'] <= 5) { ?>
                                 <div class="l-stock">Limited Stock</div>
                             <?php } ?>
                         </form>
-
-                    <?php
+            <?php
                     }
                 }
                 else

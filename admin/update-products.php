@@ -7,17 +7,27 @@
         header('location: SignIn.php');
         die();
     }
+    function normalize_quotes($input) {
+        return str_replace(
+            ["‘", "’", "“", "”"],
+            ["'", "'", '"', '"'],
+            $input
+        );
+    }
+
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
-        $id = addslashes($_POST['id']);
-        $name = addslashes($_POST["name"]);
-        $price = addslashes($_POST["price"]);
-        $category = addslashes($_POST["category"]);
-        $sub_category = addslashes($_POST["sub_category"]);
-        $brand = addslashes($_POST['brand']);
-        $stock = addslashes($_POST['stock']);
-        $description = addslashes($_POST['description']);
-        $features = addslashes($_POST['features']);
-        $tags = addslashes($_POST["tags"]);
+        $id = mysqli_real_escape_string($conn, normalize_quotes($_POST['id']));
+        $name = mysqli_real_escape_string($conn, normalize_quotes($_POST["name"]));
+        $price = mysqli_real_escape_string($conn, normalize_quotes($_POST["price"]));
+        $category = mysqli_real_escape_string($conn, normalize_quotes($_POST["category"]));
+        $sub_category = mysqli_real_escape_string($conn, normalize_quotes($_POST["sub_category"]));
+        $brand = mysqli_real_escape_string($conn, normalize_quotes($_POST['brand']));
+        $stock = mysqli_real_escape_string($conn, normalize_quotes($_POST['stock']));
+        $description = mysqli_real_escape_string($conn, normalize_quotes($_POST['description']));
+        $features = mysqli_real_escape_string($conn, normalize_quotes($_POST['features']));
+        $tags = mysqli_real_escape_string($conn, normalize_quotes($_POST["tags"]));
+
+
         
         // Fetch the current image from the database
         $result = mysqli_query($conn, "SELECT image FROM motoproducts WHERE product_id='$id'");
@@ -36,19 +46,16 @@
     
             // Move the uploaded image to the desired directory
             if (move_uploaded_file($image['tmp_name'], $newImagePath)) {
-                // Remove the old image if it exists
                 if (file_exists($currentImagePath) && $currentImagePath != $newImagePath) {
                     unlink($currentImagePath);
                 }
-    
-                $imagePath = $newImagePath;
+                $imagePath = mysqli_real_escape_string($conn, $newImagePath);
             } else {
                 die('Failed to upload the new image.');
             }
-        } else {
-            // If no new image is uploaded, keep the old image
-            $imagePath = $currentImagePath;
-        }
+            } else {
+                $imagePath = mysqli_real_escape_string($conn, $currentImagePath);
+            }
     
         // Update the database with the new image path
         $query = "UPDATE motoproducts 

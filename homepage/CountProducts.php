@@ -47,6 +47,43 @@ while ($row = mysqli_fetch_assoc($result)) {
 
 echo "</table>";
 
+
+echo "<br><h2>Product Count by Category</h2>";
+
+$categoryQuery = "
+    SELECT 
+        c.category_id,
+        c.name AS category_name,
+        COUNT(m.category_fid) AS product_count
+    FROM categories c
+    LEFT JOIN motoproducts m ON c.category_id = m.category_fid
+    GROUP BY c.category_id, c.name
+    ORDER BY FIELD(c.name, 'Helmets', 'Riding Gear', 'Parts')
+";
+
+$categoryResult = mysqli_query($conn, $categoryQuery);
+
+if (!$categoryResult) {
+    die("Query failed: " . mysqli_error($conn));
+}
+
+echo "<table border='1' cellpadding='8' cellspacing='0'>";
+echo "<tr><th>S.N.</th><th>Category ID</th><th>Category Name</th><th>Number of Products</th></tr>";
+$catIndex = 0;
+
+while ($row = mysqli_fetch_assoc($categoryResult)) {
+    echo "<tr>";
+    echo "<td>" . ++$catIndex . "</td>";
+    echo "<td>" . htmlspecialchars($row['category_id']) . "</td>";
+    echo "<td>" . htmlspecialchars($row['category_name']) . "</td>";
+    echo "<td>" . htmlspecialchars($row['product_count']) . "</td>";
+    echo "</tr>";
+}
+
+echo "</table>";
+
+
+
 echo "<br><h2>Product Count by Brand</h2>";
 
 $brandQuery = "
