@@ -7,8 +7,9 @@
         header('location: SignIn.php');
         die();
     }
+    
     if (isset($_GET['remove'])) {
-        $remove_id = $_GET['remove'];
+        $remove_id = mysqli_real_escape_string($conn, $_GET['remove']);
         if (mysqli_query($conn, "DELETE FROM orders WHERE bulk_id='$remove_id'")) {
             echo "<script>
                 document.addEventListener('DOMContentLoaded', function() {
@@ -34,72 +35,90 @@
         }
     }
 
-    if (isset($_GET['update'])) 
-    {
-        $update_id = $_GET['update'];
-        $sql="SELECT * FROM orders WHERE bulk_id='$update_id'";
-        while($sql)
-        {
-            $res = mysqli_query($conn, $sql) or die('Query failed');
-            if ($res) 
-            {
-                while ($row = mysqli_fetch_array($res)) 
-                {
-                    $user_id = $row['user_id'];
-                    $bulk_id = $row['bulk_id'];
-                    $prod_id = $row['product_id'];;
-                    $name = $row['name'];
-                    $email = $row['email'];
-                    $ph_num = $row['ph_num'];
-                    $alt_ph_num = $row['alt_ph_num'];
-                    $prod_name = $row['prod_name'];
-                    $prod_price = $row['prod_price'];
-                    $prod_quantity = $row['prod_quantity'];
-                    $street_name = $row['street_name'];
-                    $tole = $row['tole'];
-                    $municipality = $row['municipality'];
-                    $district = $row['district'];
-                    $payment_method = $row['payment_method'];
-                    $placed_date = $row['placed_date'];
-
-                    $result = mysqli_query($conn, "INSERT INTO c_orders (bulk_id, user_id, product_id, name, email, ph_num, alt_ph_num, prod_name, prod_price,
-                            prod_quantity, street_name, tole, municipality, district, payment_method, placed_date) 
-                            VALUES('$bulk_id','$user_id', '$prod_id', '$name', '$email', '$ph_num', '$alt_ph_num', '$prod_name', '$prod_price', '$prod_quantity',
-                            '$street_name', '$tole', '$municipality', '$district', '$payment_method', '$placed_date')");
-
-                    if ($result) {
-                        if(mysqli_query($conn, "DELETE FROM orders WHERE bulk_id='$update_id'"))
-                        {
-                        echo "<script>
-                                document.addEventListener('DOMContentLoaded', function() {
-                                    Swal.fire({
-                                        title: 'Order Completed',
-                                        text: 'The order has been delivered to the customer.',
-                                        icon: 'success'
-                                    }).then(() => {
-                                        window.location.href = 'pending-orders.php';
-                                    });
-                                });
-                            </script>";
-                        }
-                    } else {
-                        echo "<script>
-                                document.addEventListener('DOMContentLoaded', function() {
-                                    Swal.fire({
-                                        title: 'System Error',
-                                        text: 'Failed to complete order.',
-                                        icon: 'error'
-                                    });
-                                });
-                            </script>";
-                    }
+    if (isset($_GET['update'])) {
+        $update_id = mysqli_real_escape_string($conn, $_GET['update']);
+        
+        // Use prepared statement for better security and performance
+        $stmt = mysqli_prepare($conn, "SELECT * FROM orders WHERE bulk_id = ?");
+        mysqli_stmt_bind_param($stmt, "s", $update_id);
+        mysqli_stmt_execute($stmt);
+        $result = mysqli_stmt_get_result($stmt);
+        
+        if ($result && mysqli_num_rows($result) > 0) {
+            // Start transaction for data consistency
+            mysqli_autocommit($conn, false);
+            $success = true;
+            
+            // Prepare the insert statement once
+            $insert_stmt = mysqli_prepare($conn, 
+                "INSERT INTO c_orders (bulk_id, user_id, product_id, name, email, ph_num, alt_ph_num, prod_name, prod_price, prod_quantity, street_name, tole, municipality, district, payment_method, placed_date) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+            );
+            
+            while ($row = mysqli_fetch_assoc($result)) {
+                // Bind parameters and execute for each row
+                mysqli_stmt_bind_param($insert_stmt, "sssssssssissssss", 
+                    $row['bulk_id'], $row['user_id'], $row['product_id'], $row['name'], 
+                    $row['email'], $row['ph_num'], $row['alt_ph_num'], $row['prod_name'], 
+                    $row['prod_price'], $row['prod_quantity'], $row['street_name'], 
+                    $row['tole'], $row['municipality'], $row['district'], 
+                    $row['payment_method'], $row['placed_date']
+                );
+                
+                if (!mysqli_stmt_execute($insert_stmt)) {
+                    $success = false;
+                    break;
                 }
-                header('location: pending-orders.php');
             }
-            else
-            {
-                die('Query failed');
+            
+            // If all inserts successful, delete from orders table
+            if ($success) {
+                $delete_stmt = mysqli_prepare($conn, "DELETE FROM orders WHERE bulk_id = ?");
+                mysqli_stmt_bind_param($delete_stmt, "s", $update_id);
+                $success = mysqli_stmt_execute($delete_stmt);
+                mysqli_stmt_close($delete_stmt);
             }
+            
+            mysqli_stmt_close($insert_stmt);
+            mysqli_stmt_close($stmt);
+            
+            if ($success) {
+                mysqli_commit($conn);
+                echo "<script>
+                    document.addEventListener('DOMContentLoaded', function() {
+                        Swal.fire({
+                            title: 'Order Completed',
+                            text: 'The order has been delivered to the customer.',
+                            icon: 'success'
+                        }).then(() => {
+                            window.location.href = 'pending-orders.php';
+                        });
+                    });
+                </script>";
+            } else {
+                mysqli_rollback($conn);
+                echo "<script>
+                    document.addEventListener('DOMContentLoaded', function() {
+                        Swal.fire({
+                            title: 'System Error',
+                            text: 'Failed to complete order.',
+                            icon: 'error'
+                        });
+                    });
+                </script>";
+            }
+            
+            mysqli_autocommit($conn, true);
+        } else {
+            echo "<script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    Swal.fire({
+                        title: 'Error',
+                        text: 'Order not found.',
+                        icon: 'error'
+                    });
+                });
+            </script>";
         }
     }
 ?>
@@ -195,9 +214,7 @@
                 <?php
                 $index = 1;
                 if (isset($_POST['search-box']) && $_POST['search-box'] != NULL) {
-                    $search = $_POST['search-box'];
-                    // Perform custom sanitization to prevent SQL injection
-                    $search = htmlspecialchars($search, ENT_QUOTES, 'UTF-8'); // Basic sanitization
+                    $search = mysqli_real_escape_string($conn, $_POST['search-box']);
                     $query = "SELECT * FROM orders WHERE bulk_id LIKE '%$search%' ORDER BY placed_date ASC";
                 } else {
                     $query = "SELECT * FROM orders ORDER BY placed_date ASC";
@@ -205,11 +222,10 @@
                 
                 $select_user = mysqli_query($conn, $query) or die('Query failed.');
                 if (mysqli_num_rows($select_user) > 0) {
-                    $prev_bulk_id = null; // Store previous bulk_id for comparison
-                    $grand_total = 0; // Grand Total for each bulk_id
+                    $prev_bulk_id = null;
+                    $grand_total = 0;
 
                     while ($fetch_user = mysqli_fetch_assoc($select_user)) {
-                        // If bulk_id changes, display the grand total of previous bulk_id
                         if ($fetch_user['bulk_id'] != $prev_bulk_id && $prev_bulk_id != null) {
                             ?>
                             <tr>
@@ -228,10 +244,9 @@
                                 </td>
                             </tr>
                             <?php
-                            $grand_total = 0; // Reset grand total for the next bulk_id
+                            $grand_total = 0;
                         }
 
-                        // Display user details only once for each bulk_id
                         if ($fetch_user['bulk_id'] != $prev_bulk_id) {
                             ?>
                             <tr style="text-align: center; border-top: 2px solid #000; font-weight:450;">
@@ -259,22 +274,19 @@
                                 </td>
                             </tr>
                             <tr style="font-size: 18px; font-weight: 600;">
-                                <td style="border-bottom: none;"></td> <!-- Remove border-bottom from the first column -->
+                                <td style="border-bottom: none;"></td>
                                 <td style="border-bottom: 1px solid #000;">Order ID</td>
                                 <td colspan="2" style="border-bottom: 1px solid #000;">Product Name</td>
                                 <td style="border-bottom: 1px solid #000;">Price</td>
                                 <td style="border-bottom: 1px solid #000;">Quantity</td>
                                 <td style="border-bottom: 1px solid #000;">Sub-Total</td>
                             </tr>
-
                             <?php
                         }
 
-                        // Calculate Subtotal for current order and add to Grand Total
                         $subtotal = $fetch_user['prod_price'] * $fetch_user['prod_quantity'];
                         $grand_total += $subtotal;
                         $grand_total1 = number_format($grand_total + 250.00,2);
-                        // Display current order row
                         ?>
                         <tr style="text-align: left;">
                             <td></td>
@@ -285,10 +297,9 @@
                             <td><?php echo $subtotal; ?></td>
                         </tr>
                         <?php
-                        $prev_bulk_id = $fetch_user['bulk_id']; // Update bulk_id for next iteration
+                        $prev_bulk_id = $fetch_user['bulk_id'];
                     }
 
-                    // Display the final Grand Total after the last bulk_id
                     if ($prev_bulk_id != null) {
                         ?>
                         <tr>
@@ -321,7 +332,6 @@
         </div>
     </div>
     <script>
-        // Function to show confirmation dialog
         $('.c-btn').on('click',function(e){
             e.preventDefault();
             const href = $(this).attr('href')
@@ -345,7 +355,7 @@
                 title: 'Are you sure you want to remove this order?',
                 icon : 'warning',
                 text : 'This action cannot be undone.',
-                showCancelButton:true,
+                showCancelButton: true,
                 confirmButtonColor: 'red',
                 cancelButtonColor: 'grey',
                 confirmButtonText: 'Confirm',

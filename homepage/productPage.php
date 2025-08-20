@@ -152,10 +152,7 @@ if (isset($_POST["add-to-cart"])) {
 
                         <?php if ($row['stock'] > 0) { ?>
                             <input type="number" name="quantity" class="quantity" min="1" max="<?php echo $row['stock'];?>" value="1">
-                        <?php } else {?>
-
-                            <?php } ?>
-                        <p class="price">
+                            <p class="price">
                         <?php 
                             $truePrice = $row['price'] - ($row['discount_percent'] / 100) * $row['price'];
                             if ($row['discount_percent'] != NULL) { ?>
@@ -177,6 +174,10 @@ if (isset($_POST["add-to-cart"])) {
                             }
                         ?>
                         </p>
+                        <?php } else {?>
+
+                            <?php } ?>
+                        
                         <div class="buttons">
                             <?php if ($row['stock'] > 0) { ?>
                                 <input type="submit" name="add-to-cart" class="add-to-cart" value="Add to Cart">
@@ -195,86 +196,103 @@ if (isset($_POST["add-to-cart"])) {
                 exit;
             }
 
+            $uid = $_SESSION["UID"] ?? 0;
+
             // Run SBERT Python script
-            $command = escapeshellcmd("python sbert_recommender.py $product_id");
+            $command = escapeshellcmd("py sbert_recommender.py $product_id $uid");
             $output = shell_exec($command);
 
             // Convert JSON result
             $recommendations = json_decode($output, true);
 
             if (!empty($recommendations)) {
+
+                // Collect all recommended product IDs
+                $ids = implode(',', array_map(fn($p) => (int)$p['product_id'], $recommendations));
+
+                // Fetch all product info + reviews in ONE query
+                $query = mysqli_query($conn, "
+                    SELECT p.*, 
+                        COALESCE(r.total_reviews,0) AS total_reviews, 
+                        COALESCE(r.total_rating,0) AS total_obtained_rating
+                    FROM motoproducts p
+                    LEFT JOIN (
+                        SELECT product_id, COUNT(*) AS total_reviews, SUM(rating) AS total_rating
+                        FROM review
+                        GROUP BY product_id
+                    ) r ON p.product_id = r.product_id
+                    WHERE p.product_id IN ($ids)
+                ");
+
+                // Map results for easy lookup
+                $products_data = [];
+                while ($row = mysqli_fetch_assoc($query)) {
+                    $products_data[$row['product_id']] = $row;
+                }
+
                 echo '<div class="recommended-products-container">';
                 echo '<h2>You Also Might Wanna Check These Out</h2>';
                 echo '<div class="recommended-products-scroller">';
-                
+
                 foreach ($recommendations as $product) {
-                    $pid = htmlspecialchars($product['product_id']);
-                    $score = round($product['score'] * 100, 2); // Convert to percentage
-                    
-                    // Get full product details for each recommended product
-                    $query = mysqli_query($conn, "SELECT * FROM motoproducts WHERE product_id = $pid");
-                    $rev_query = mysqli_query($conn,"SELECT COUNT(*) as total_reviews, SUM(rating) as total_obtained_rating FROM review WHERE product_id=$pid");
-                    if (mysqli_num_rows($query) > 0) {
-                        $row = mysqli_fetch_assoc($query);
-                        ?>
-                        <div class="recommended-product-card" style="padding: 20px 10px; display: flex; flex-direction: column; justify-content: space-around; align-items: center; text-align: center; height: 50vh;">
-                                <a href="productPage.php?id=<?php echo $row['product_id']; ?>" style="text-decoration: none; color: inherit; width: 100%;">
-                                    <img src="../admin/products/<?php echo $row['image'] ?? 'default.jpg'; ?>"
-                                        alt="<?php echo htmlspecialchars($row['name']); ?>"
-                                        class="product-image" style="width: 100%; height: 300px;">
+                    $pid = $product['product_id'];
+                    $score = round($product['score'] * 100, 2); // optional
 
-                                    <div class="product-details" style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
-                                        <div class="product-name" style="font-weight: 500; font-size: 16px;"><?php echo $row['name']; ?></div>
+                    if (!isset($products_data[$pid])) continue; // safety check
+                    $row = $products_data[$pid];
 
-                                        <div class="product-price" style="margin: 10px 0;">
-                                            <?php 
-                                                $truePrice = $row['price'] - ($row['discount_percent'] / 100) * $row['price'];
+                    // 🚨 Skip if stock is 0
+                    if (isset($row['stock']) && (int)$row['stock'] <= 0) continue;
 
-                                                if (!empty($row['discount_percent']) && $row['discount_percent'] > 0) { ?>
-                                                    <div style="display: flex; justify-content: center; align-items: center; gap: 8px; margin-bottom: 4px;">
-                                                        <span style="color: red; text-decoration: line-through; font-size: 16px;">
-                                                            Rs. <?php echo number_format($row['price']); ?>
-                                                        </span>
-                                                        <div style="background-color: red; color: white; font-weight: 500; font-size: 14px; padding: 3px 6px; border-radius: 4px;">
-                                                            -<?php echo $row['discount_percent']; ?>% off
-                                                        </div>
-                                                    </div>
-                                                    <p style="color: green; font-size: 20px; font-weight: 600; margin: 0;">
-                                                        Rs. <?php echo number_format($truePrice); ?>
-                                                    </p>
-                                                <?php } else { ?>
-                                                    <p style="color: green; font-size: 20px; font-weight: 600; margin: 0;">
-                                                        Rs. <?php echo number_format($row['price']); ?>
-                                                    </p>
-                                                <?php } ?>
+                    $truePrice = $row['price'] - ($row['discount_percent'] / 100) * $row['price'];
+                    $total_reviews = $row['total_reviews'];
+                    $total_rating = $row['total_obtained_rating'];
+                    $satisfactory_rate = ($total_reviews > 0) ? number_format(($total_rating / ($total_reviews * 5.0)) * 5, 2) : 0;
+                    ?>
+                    <div class="recommended-product-card" style="padding: 20px 10px; display: flex; flex-direction: column; justify-content: space-around; align-items: center; text-align: center; height: 50vh;">
+                        <a href="productPage.php?id=<?php echo $row['product_id']; ?>" style="text-decoration: none; color: inherit; width: 100%;">
+                            <img src="../admin/products/<?php echo $row['image'] ?? 'default.jpg'; ?>"
+                                alt="<?php echo htmlspecialchars($row['name']); ?>"
+                                class="product-image" style="width: 100%; height: 300px;">
+
+                            <div class="product-details" style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                                <div class="product-name" style="font-weight: 500; font-size: 16px;"><?php echo $row['name']; ?></div>
+
+                                <div class="product-price" style="margin: 10px 0;">
+                                    <?php if (!empty($row['discount_percent']) && $row['discount_percent'] > 0) { ?>
+                                        <div style="display: flex; justify-content: center; align-items: center; gap: 8px; margin-bottom: 4px;">
+                                            <span style="color: red; text-decoration: line-through; font-size: 16px;">
+                                                Rs. <?php echo number_format($row['price']); ?>
+                                            </span>
+                                            <div style="background-color: red; color: white; font-weight: 500; font-size: 14px; padding: 3px 6px; border-radius: 4px;">
+                                                -<?php echo $row['discount_percent']; ?>% off
+                                            </div>
                                         </div>
+                                    <?php } ?>
+                                    <p style="color: green; font-size: 20px; font-weight: 600; margin: 0;">
+                                        Rs. <?php echo number_format($truePrice); ?>
+                                        <?php echo number_format($score); ?>%
+                                    </p>
+                                </div>
 
-                                        <?php 
-                                        if (mysqli_num_rows($rev_query) > 0) {
-                                            $row1 = mysqli_fetch_assoc($rev_query);
-                                            $total_reviews = $row1['total_reviews'];
-                                            if ($total_reviews > 0) {
-                                                $total_obtained_rating = $row1['total_obtained_rating'];
-                                                $satisfactory_rate = number_format(($total_obtained_rating / ($total_reviews * 5.0)) * 5, 2); ?>
-                                                <div class="product-review" style="color: gray; font-size: 14px; margin-top: 6px;">
-                                                    Ratings: <?php echo $satisfactory_rate . "/5 (" . $total_reviews . ")"; ?>
-                                                </div>
-                                            <?php }
-                                        } ?>
+                                <?php if ($total_reviews > 0) { ?>
+                                    <div class="product-review" style="color: gray; font-size: 14px; margin-top: 6px;">
+                                        Ratings: <?php echo $satisfactory_rate . "/5 (" . $total_reviews . ")"; ?>
                                     </div>
-                                </a>
+                                <?php } ?>
                             </div>
-
-                        <?php
-                    }
+                        </a>
+                    </div>
+                    <?php
                 }
-                
+
                 echo '</div></div>';
+
             } else {
                 echo "<p>No recommendations available.</p>";
             }
-
             ?>
+
             <div class="review-container">
                 <div class="user-review">
                     <?php
@@ -364,7 +382,7 @@ if (isset($_POST["add-to-cart"])) {
                     {
                         ?>
                             <script>
-                                swal({
+                                swal.fire({
                                     title: "Thank you for reviewing this product!",
                                     text: "Your review has been posted.",
                                     icon: "success",
@@ -379,7 +397,7 @@ if (isset($_POST["add-to-cart"])) {
                     {
                         ?>
                             <script>
-                                swal({
+                                swal.fire({
                                     icon: "error",
                                     title: "Oops...",
                                     text: "Something went wrong!",

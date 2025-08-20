@@ -60,7 +60,7 @@ $name = explode(" ", $row1['name'])[0];
         header img {
             width: 120px;
             height: auto;
-            margin-top: 55px;
+            margin-top: 75px;
             margin-right: 4px;
             border-radius: 4px;
             object-fit: cover;

@@ -52,7 +52,7 @@ if(!isset($_SESSION['UID'])) {
                                     <div class="name" style="color: black;"><?php echo htmlspecialchars($fetch_product['name']); ?></div>
                                 </div>
 
-                                <div class="price">
+                                <div class="price" style="margin-top: -2vh;">
                                     <?php if ($fetch_product['stock'] > 0) { ?>
                                         NPR <?php echo number_format($fetch_product['price']); ?>
                                     <?php } else { ?>
@@ -74,49 +74,56 @@ if(!isset($_SESSION['UID'])) {
         <!-- All Products Section -->
 <div class="all-products">
     <h1>All Products</h1>
-    <div class="search-box">
-        <form action="">
-            <textarea name="search" id="searchInput" class="search" placeholder="Search in MotoVault"></textarea>
-            <!-- Search results will appear here -->
-            <div id="searchResults" class="search-results"></div>
-        </form>
-    </div>
     <div class="product-info" id="all-products-info">
         <?php
-            $select_product = mysqli_query($conn, "SELECT * FROM `motoproducts`") or die('Query failed.');
-            if (mysqli_num_rows($select_product) > 0) {
-                while ($fetch_product = mysqli_fetch_assoc($select_product)) {
-            ?>
-                    <a href="productPage.php?id=<?php echo $fetch_product['product_id']; ?>" class="product" style="position: relative;" data-name="<?php echo htmlspecialchars($fetch_product['name']); ?>" data-description="<?php echo htmlspecialchars($fetch_product['description']); ?>">
-                    
-                        <?php if (!empty($fetch_product['discount_percent']) && $fetch_product['discount_percent'] > 0) { ?>
+        $select_product = mysqli_query($conn, "SELECT * FROM `motoproducts`") or die('Query failed.');
+
+        $products = [];
+        if (mysqli_num_rows($select_product) > 0) {
+            while ($fetch_product = mysqli_fetch_assoc($select_product)) {
+                $products[] = $fetch_product;
+            }
+
+            // Sort products: in-stock first, out-of-stock last
+            usort($products, function($a, $b) {
+                return ($b['stock'] > 0) - ($a['stock'] > 0);
+            });
+
+            // Loop through sorted products
+            foreach ($products as $fetch_product) {
+                ?>
+                <form method="post" class="product" action="productPage.php">
+                    <a href="productPage.php?id=<?php echo $fetch_product['product_id']; ?>" style="position: relative; display: inline-block;">
+                        <?php if (!empty($fetch_product['discount_percent']) && $fetch_product['discount_percent'] > 0 && $fetch_product['stock'] > 0) { ?>
                             <div style="position: absolute; top: 8px; right: 8px; background-color: red; color: white; padding: 4px 8px; font-size: 12px; font-weight: bold; border-radius: 5px; z-index: 5;">
                                 -<?php echo $fetch_product['discount_percent']; ?>% off
                             </div>
                         <?php } ?>
-
-                        <img src="../admin/products/<?php echo htmlspecialchars($fetch_product['image']); ?>"
-                            alt="<?php echo htmlspecialchars($fetch_product['name']); ?>" class="image" />
-
-                        <div class="box">
-                            <div class="name" style="color: black;"><?php echo htmlspecialchars($fetch_product['name']); ?></div>
-                        </div>
-
-                        <div class="price">
-                            <?php if ($fetch_product['stock'] > 0) { ?>
-                                NPR <?php echo number_format($fetch_product['price']); ?>
-                            <?php } else { ?>
-                                <span class="out-of-stock" style="color: grey;">Out of Stock</span>
-                            <?php } ?>
-                        </div>
-
-                        <?php if ($fetch_product['stock'] <= 5 && $fetch_product['stock'] > 0) { ?>
-                            <div class="l-stock" style="color: red; font-weight: bold;">Limited Stock</div>
-                        <?php } ?>
+                        <img src="../admin/products/<?php echo $fetch_product['image']; ?>" 
+                            alt="<?php echo $fetch_product['name']; ?>" class="image">
                     </a>
-            <?php
-                }
+
+                    <div class="box">
+                        <div class="name"><?php echo $fetch_product['name']; ?></div>
+                    </div>
+
+                    <div class="price">
+                        <?php if ($fetch_product['stock'] > 0) { 
+                            $truePrice = $fetch_product['price'] - ($fetch_product['discount_percent'] / 100) * $fetch_product['price'];
+                            echo '<p style=" font-size: 18px; color: green; font-weight: 500;">NPR ' . number_format($truePrice) . '</p>';
+                        } else { ?>
+                            <span class="out-of-stock" style="color: grey;">Out of Stock</span>
+                        <?php } ?>
+                    </div>
+
+                    <?php if ($fetch_product['stock'] <= 5 && $fetch_product['stock']>0) { ?>
+                        <div class="l-stock" style="font-weight: bold;">Limited Stock</div>
+                    <?php } ?>
+                </form>
+                <?php
             }
+        }
+
             ?>
     </div>
 </div>

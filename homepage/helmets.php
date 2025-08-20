@@ -65,49 +65,53 @@
             <div class="product-info" id="product-info">
                 <?php
                 $select_product = mysqli_query($conn, "SELECT * FROM `motoproducts` WHERE category_fid='2';") or die('Query failed.');
+
+                $products = [];
                 if (mysqli_num_rows($select_product) > 0) {
                     while ($fetch_product = mysqli_fetch_assoc($select_product)) {
-                ?>
+                        $products[] = $fetch_product;
+                    }
+
+                    // Sort products: in-stock first, out-of-stock last
+                    usort($products, function($a, $b) {
+                        return ($b['stock'] > 0) - ($a['stock'] > 0);
+                    });
+
+                    // Loop through sorted products
+                    foreach ($products as $fetch_product) {
+                        ?>
                         <form method="post" class="product" action="productPage.php">
                             <a href="productPage.php?id=<?php echo $fetch_product['product_id']; ?>" style="position: relative; display: inline-block;">
-                                <?php if (!empty($fetch_product['discount_percent']) && $fetch_product['discount_percent'] > 0) { ?>
+                                <?php if (!empty($fetch_product['discount_percent']) && $fetch_product['discount_percent'] > 0 && $fetch_product['stock'] > 0) { ?>
                                     <div style="position: absolute; top: 8px; right: 8px; background-color: red; color: white; padding: 4px 8px; font-size: 12px; font-weight: bold; border-radius: 5px; z-index: 5;">
                                         -<?php echo $fetch_product['discount_percent']; ?>% off
                                     </div>
                                 <?php } ?>
                                 <img src="../admin/products/<?php echo $fetch_product['image']; ?>" 
-                                alt="<?php echo $fetch_product['name']; ?>" class="image">
+                                    alt="<?php echo $fetch_product['name']; ?>" class="image">
                             </a>
 
                             <div class="box">
                                 <div class="name"><?php echo $fetch_product['name']; ?></div>
                             </div>
+
                             <div class="price" style="margin-top: -12px;">
                                 <?php if ($fetch_product['stock'] > 0) { 
                                     $truePrice = $fetch_product['price'] - ($fetch_product['discount_percent'] / 100) * $fetch_product['price'];
-                                    if($fetch_product['discount_percent']!=NULL)
-                                    {
-                                        // echo '<div style="display: flex; gap: 10px; align-items: center; font-size: 18px; margin-bottom: -6px;">
-                                        //     <span style="color: red; text-decoration: line-through;">Rs. ' . number_format($fetch_product['price']) . '</span>
-                                        //     <span style="color: orange; font-weight: 500; font-size: 18px;">  ' . $fetch_product['discount_percent'] . '% off</span>
-                                        // </div>';
-                                        echo '<p style=" font-size: 18px; color: green; font-weight: 500;">NPR ' . number_format($truePrice) . '</p>';
-                                    } 
-                                    else
-                                    {
-                                        echo '<p style=" font-size: 18px; color: green; font-weight: 500;">NPR ' . number_format($truePrice) . '</p>';
-                                    }
-                                 } else { ?>
+                                    echo '<p style=" font-size: 18px; color: green; font-weight: 500;">NPR ' . number_format($truePrice) . '</p>';
+                                } else { ?>
                                     <span class="out-of-stock" style="color: grey;">Out of Stock</span>
                                 <?php } ?>
                             </div>
-                            <?php if ($fetch_product['stock'] <= 5 && $fetch_product['stock']>0) { ?>
+
+                            <?php if ($fetch_product['stock'] < 5 && $fetch_product['stock']>0) { ?>
                                 <div class="l-stock" style="margin-top: -10px">Limited Stock</div>
                             <?php } ?>
                         </form>
-                <?php
+                        <?php
                     }
                 }
+
                 ?>
             </div>
         </div>

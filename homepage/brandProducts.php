@@ -222,37 +222,53 @@
         <h1 id="pro">Products by <?php echo $brandName; ?></h1>
         <div class="product-info" id="product-info">
             <?php
-            if (isset($_GET['id'])) 
-            {
-                $brand_id = $_GET['id'];
-                $select_product = mysqli_query($conn, "SELECT * FROM `motoproducts` WHERE brand_fid='$brand_id'") or die('Query failed.');
-                if (mysqli_num_rows($select_product) > 0) {
-                    while ($fetch_product = mysqli_fetch_assoc($select_product)) {
-            ?>
-                        <form method="post" class="product" action="productPage.php">
-                            <a href="productPage.php?id=<?php echo $fetch_product['product_id']; ?>">
-                                <?php if (!empty($fetch_product['discount_percent']) && $fetch_product['discount_percent'] > 0) { ?>
-                                    <div class="discount-badge">-<?php echo $fetch_product['discount_percent']; ?>% off</div>
-                                <?php } ?>
-                                <img src="../admin/products/<?php echo $fetch_product['image']; ?>" 
-                                    alt="<?php echo $fetch_product['name']; ?>" class="image">
-                            </a>
-                            <div class="box">
-                                <div class="name" style="font-weight: bolder;"><?php echo $fetch_product['name']; ?></div>
-                            </div>
-                            <div class="price" style="font-weight: 600;">NPR <?php echo number_format($fetch_product['price']); ?></div>
-                            <?php if ($fetch_product['stock'] <= 5) { ?>
-                                <div class="l-stock">Limited Stock</div>
+            if (isset($_GET['id'])) {
+            $brand_id = $_GET['id'];
+            $select_product = mysqli_query($conn, "SELECT * FROM `motoproducts` WHERE brand_fid='$brand_id'") or die('Query failed.');
+
+            $products = [];
+            if (mysqli_num_rows($select_product) > 0) {
+                while ($fetch_product = mysqli_fetch_assoc($select_product)) {
+                    $products[] = $fetch_product;
+                }
+
+                // Sort: in-stock first, out-of-stock last
+                usort($products, function($a, $b) {
+                    return ($b['stock'] > 0) - ($a['stock'] > 0);
+                });
+
+                foreach ($products as $fetch_product) {
+                    ?>
+                    <form method="post" class="product" action="productPage.php">
+                        <a href="productPage.php?id=<?php echo $fetch_product['product_id']; ?>">
+                            <?php if (!empty($fetch_product['discount_percent']) && $fetch_product['discount_percent'] > 0 && $fetch_product['stock'] > 0) { ?>
+                                <div class="discount-badge">-<?php echo $fetch_product['discount_percent']; ?>% off</div>
                             <?php } ?>
-                        </form>
-            <?php
-                    }
+                            <img src="../admin/products/<?php echo $fetch_product['image']; ?>" 
+                                alt="<?php echo $fetch_product['name']; ?>" class="image">
+                        </a>
+                        <div class="box">
+                            <div class="name" style="font-weight: bolder;"><?php echo $fetch_product['name']; ?></div>
+                        </div>
+                        <div class="price" style="font-weight: 600;">
+                            <?php if ($fetch_product['stock'] > 0) { 
+                                $truePrice = $fetch_product['price'] - ($fetch_product['discount_percent'] / 100) * $fetch_product['price'];
+                                echo '<p style=" font-size: 18px; color: green; font-weight: 500;">NPR ' . number_format($truePrice) . '</p>';
+                            } else { ?>
+                                <span class="out-of-stock" style="color: grey;">Out of Stock</span>
+                            <?php } ?>
+                        </div>
+                        <?php if ($fetch_product['stock'] < 5 && $fetch_product['stock']>0) { ?>
+                            <div class="l-stock">Limited Stock</div>
+                        <?php } ?>
+                    </form>
+                    <?php
                 }
-                else
-                {
-                    echo "<h2>No Products Found</h2>";
-                }
+            } else {
+                echo "<h2>No Products Found</h2>";
             }
+        }
+
             ?>
         </div>
     </div>

@@ -36,12 +36,14 @@ if (isset($_POST['order'])) {
         $user_id = mysqli_real_escape_string($conn, $item['user_id']);
 
         // Insert order details into the orders table
+        if($user_id == $id) {
         $sql = "INSERT INTO `orders` 
                 (bulk_id, user_id, product_id, name, email, ph_num, alt_ph_num, prod_name, prod_price, prod_quantity, street_name, tole, municipality, district, payment_method) 
                 VALUES 
                 ('$bulk_id', '$user_id', '$prod_id', '$name', '$email', '$ph_num', '$alt_ph_num', '$prod_name', '$prod_price', '$prod_quantity', '$street_name', '$tole', '$municipality', '$district', '$payment_method')";
 
         $result = mysqli_query($conn, $sql);
+        }
 
         if (!$result) {
             echo "<script>alert('Error inserting order: " . mysqli_error($conn) . "');</script>";
@@ -62,11 +64,25 @@ if (isset($_POST['order'])) {
 
     if ($result && $update_result) { // Ensure both queries are successful
         echo "<script>alert('Order Placed Successfully');</script>";
-        setcookie('shopping_cart', '', time() - 3600, '/'); // Delete cookie by setting past expiry time
+
+        // Filter out only items of the current user
+        $updated_cart = array_filter($cart_data, function($item) use ($id) {
+            return $item['user_id'] != $id; // keep items that are NOT from this user
+        });
+
+        // Reset cookie with remaining items
+        if (!empty($updated_cart)) {
+            setcookie('shopping_cart', json_encode(array_values($updated_cart)), time() + (86400 * 30), '/');
+        } else {
+            setcookie('shopping_cart', '', time() - 3600, '/'); // delete if empty
+        }
+
         header('Location: order-placed.php');
+        exit();
     } else {
         echo "<script>alert('Error placing the order.');</script>";
     }
+
 }
 
 ?>

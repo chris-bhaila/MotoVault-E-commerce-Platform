@@ -25,10 +25,7 @@
         $stock = mysqli_real_escape_string($conn, normalize_quotes($_POST['stock']));
         $description = mysqli_real_escape_string($conn, normalize_quotes($_POST['description']));
         $features = mysqli_real_escape_string($conn, normalize_quotes($_POST['features']));
-        $tags = mysqli_real_escape_string($conn, normalize_quotes($_POST["tags"]));
 
-
-        
         // Fetch the current image from the database
         $result = mysqli_query($conn, "SELECT image FROM motoproducts WHERE product_id='$id'");
         $currentImage = mysqli_fetch_assoc($result);
@@ -61,7 +58,7 @@
         $query = "UPDATE motoproducts 
                   SET name='$name', price='$price', brand_fid='$brand', category_fid='$category',
                       sub_cat_fid='$sub_category', stock='$stock',
-                      description='$description', features='$features', image='$imagePath', tags='$tags'
+                      description='$description', features='$features', image='$imagePath'
                   WHERE product_id='$id'";
 
     if (mysqli_query($conn, $query)) {
@@ -308,23 +305,10 @@ if (isset($_GET['remove'])) {
                 <td><textarea name="features" id="features" class="custom-input" required></textarea>
                 <p style="color: red;">*Use '!' for line separation</p></td></tr>
                 <tr>
-                    <td>Tags:</td>
-                    <td style="position: relative;">
-                        <textarea name="tags" class="custom-input" required id="tags"></textarea>
-                    </td>
-                    <td></td>
-                    </tr>
-                    <td><label class="image">Image</label></td>
-                    <td><input type="file" name="image" accept=".jpg, .jpeg, .png, .svg" class="image1"></td>
-                </tr>
-                <tr>
                     <td></td>
                     <td><input type="submit" name="submit" value="Update" class="btn"></td>
                 </tr>
             </form>
-
-
-
             </table>
         </div>
         <div class="sub-container2">
@@ -360,8 +344,7 @@ if (isset($_GET['remove'])) {
                                     data-brand="<?php echo $fetch_product['brand_fid']; ?>" 
                                     data-stock="<?php echo $fetch_product['stock']; ?>" 
                                     data-description="<?php echo $fetch_product['description']; ?>" 
-                                    data-features="<?php echo $fetch_product['features']; ?>" 
-                                    data-tags="<?php echo $fetch_product['tags']; ?>">Update</button><br><br>
+                                    data-features="<?php echo $fetch_product['features']; ?>">Update</button><br><br>
                                 <a href="update-products.php?remove=<?php echo $fetch_product['product_id']; ?>" class="r-btn">Remove</a>
                             </td>
                         </form>
@@ -375,38 +358,47 @@ if (isset($_GET['remove'])) {
 
     <script>
         document.addEventListener('DOMContentLoaded', (event) => {
-            document.querySelectorAll('.update-btn').forEach(button => {
-                button.addEventListener('click', () => {
-                    document.getElementById('id').value = button.getAttribute('data-id');
-                    document.getElementById('name').value = button.getAttribute('data-name');
-                    document.getElementById('price').value = button.getAttribute('data-price');
-                    document.getElementById('stock').value = button.getAttribute('data-stock');
-                    document.getElementById('description').value = button.getAttribute('data-description');
-                    document.getElementById('features').value = button.getAttribute('data-features');
-                    document.getElementById('tags').value = button.getAttribute('data-tags');
+        document.querySelectorAll('.update-btn').forEach(button => {
+            button.addEventListener('click', () => {
+                // Clear all radio buttons first
+                document.querySelectorAll('input[type="radio"]').forEach(radio => {
+                    radio.checked = false;
+                });
 
-                    let category = button.getAttribute('data-category');
-                    document.querySelectorAll('.category').forEach((elem) => {
-                        if (elem.value == category) {
-                            elem.checked = true;
-                        }
-                    });
-                    let sub_category = button.getAttribute('data-sub-category');
-                    document.querySelectorAll('.sub_category').forEach((elem) => {
-                        if (elem.value == sub_category) {
-                            elem.checked = true;
-                        }
-                    });
+                // Set form values
+                document.getElementById('id').value = button.getAttribute('data-id');
+                document.getElementById('name').value = button.getAttribute('data-name');
+                document.getElementById('price').value = button.getAttribute('data-price');
+                document.getElementById('stock').value = button.getAttribute('data-stock');
+                document.getElementById('description').value = button.getAttribute('data-description');
+                document.getElementById('features').value = button.getAttribute('data-features');
 
-                    let brand = button.getAttribute('data-brand');
-                    document.querySelectorAll('.brand').forEach((elem) => {
-                        if (elem.value == brand) {
-                            elem.checked = true;
-                        }
-                    });
+                // Set category radio button
+                let category = button.getAttribute('data-category');
+                document.querySelectorAll('input[name="category"]').forEach((elem) => {
+                    if (elem.value == category) {
+                        elem.checked = true;
+                    }
+                });
+
+                // Set sub-category radio button
+                let sub_category = button.getAttribute('data-sub-category');
+                document.querySelectorAll('input[name="sub_category"]').forEach((elem) => {
+                    if (elem.value == sub_category) {
+                        elem.checked = true;
+                    }
+                });
+
+                // Set brand radio button
+                let brand = button.getAttribute('data-brand');
+                document.querySelectorAll('input[name="brand"]').forEach((elem) => {
+                    if (elem.value == brand) {
+                        elem.checked = true;
+                    }
                 });
             });
         });
+});
         $('.r-btn').on('click',function(e){
             e.preventDefault();
             const href = $(this).attr('href')
@@ -458,26 +450,6 @@ if (isset($_GET['remove'])) {
         function getLastWord(inputText) {
             let parts = inputText.split(',');
             return parts[parts.length - 1].trim(); // Last segment after comma
-        }
-
-        // Insert selected tag, replacing the last typed word
-        function addTag(selectedTag) {
-            const input = document.getElementById("tags");
-            let currentValue = input.value;
-            let parts = currentValue.split(',');
-            
-            // Replace the last word with selectedTag
-            parts[parts.length - 1] = " " + selectedTag; // Add space before tag
-            let newTags = parts.map(tag => tag.trim()).filter(tag => tag !== "");
-
-            // Remove duplicates
-            newTags = [...new Set(newTags)];
-
-            // Add trailing comma and space
-            input.value = newTags.join(", ") + ", ";
-
-            // Clear suggestions box
-            document.getElementById("suggestions").innerHTML = "";
         }
     </script>
 </body>

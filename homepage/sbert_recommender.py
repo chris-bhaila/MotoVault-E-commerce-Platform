@@ -1,76 +1,91 @@
-import mysql.connector
-from sentence_transformers import SentenceTransformer, util
 import numpy as np
 import json
 import sys
 
-# Load the SBERT model
-model = SentenceTransformer('all-MiniLM-L6-v2')  # You can use another if you want
+# Load precomputed embeddings and products
+products_file = 'products.json'
+embeddings_file = 'product_embeddings.npy'
 
-# Connect to your MySQL database
-def get_connection():
-    return mysql.connector.connect(
+with open(products_file, 'r', encoding='utf-8') as f:
+    products = json.load(f)
+
+corpus_embeddings = np.load(embeddings_file)  # shape: (num_products, embedding_dim)
+
+# Map product_id to index
+id_to_index = {p['product_id']: i for i, p in enumerate(products)}
+
+# Load user purchase history
+# Example: precomputed or fetched from DB, just product_ids list
+def load_user_history(user_id):
+    # Replace with DB query if needed
+    import mysql.connector
+    conn = mysql.connector.connect(
         host='localhost',
         user='root',
-        password='',  # use your DB password
+        password='',
         database='motovault'
     )
-
-# Load product data
-def load_products():
-    conn = get_connection()
     cursor = conn.cursor(dictionary=True)
-    cursor.execute("SELECT product_id, name, tags FROM motoproducts")
-    products = cursor.fetchall()
+    cursor.execute("SELECT product_id FROM c_orders WHERE user_id = %s", (user_id,))
+    purchased = [row['product_id'] for row in cursor.fetchall()]
     cursor.close()
     conn.close()
-    return products
+    return purchased
 
-# Find similar products using SBERT
-def get_similar_products(target_id, top_k=10):
-    products = load_products()
+# Compute cosine similarity using NumPy
+def cosine_similarity(a, b):
+    # a: (embedding_dim,) b: (num_products, embedding_dim)
+    a_norm = np.linalg.norm(a)
+    b_norm = np.linalg.norm(b, axis=1)
+    return np.dot(b, a) / (b_norm * a_norm + 1e-8)
 
-    id_to_product = {p['product_id']: p for p in products}
-    if target_id not in id_to_product:
+# Hybrid recommendation
+def get_hybrid_recommendations(product_id, user_id, top_k=10):
+    if product_id not in id_to_index:
         return []
 
-    # Prepare text embeddings (name + tags)
-    corpus = [f"{p['name']} {p['tags']}" for p in products]
-    corpus_embeddings = model.encode(corpus, convert_to_tensor=True)
+    target_idx = id_to_index[product_id]
+    target_embedding = corpus_embeddings[target_idx]
 
-    # Get embedding for target product
-    target_index = next(i for i, p in enumerate(products) if p['product_id'] == target_id)
-    target_embedding = corpus_embeddings[target_index]
+    # Similarity to target product
+    product_cos_scores = cosine_similarity(target_embedding, corpus_embeddings)
 
-    # Compute cosine similarity
-    cos_scores = util.cos_sim(target_embedding, corpus_embeddings)[0]
+    # Similarity to purchased products
+    purchased_ids = load_user_history(user_id)
+    purchase_cos_scores = np.zeros(len(products))
+    if purchased_ids:
+        purchased_indices = [id_to_index[pid] for pid in purchased_ids if pid in id_to_index]
+        if purchased_indices:
+            purchased_embeddings = corpus_embeddings[purchased_indices]
+            purchase_cos_scores = cosine_similarity(purchased_embeddings.mean(axis=0), corpus_embeddings)
 
-    # Get top-k similar excluding the target itself
-    top_results = np.argpartition(-cos_scores, range(top_k + 1))[0:top_k + 1]
+    # Weighted combination (more weight to user history if available)
+    alpha = 0.7 if purchased_ids else 0.0
+    combined_scores = alpha * purchase_cos_scores + (1 - alpha) * product_cos_scores
+
+    # Build results excluding current product & already purchased
     results = []
-
-    for idx in top_results:
-        pid = products[idx]['product_id']
-        if pid != target_id:
+    for idx, p in enumerate(products):
+        if p['product_id'] != product_id and p['product_id'] not in purchased_ids:
             results.append({
-                'product_id': pid,
-                'name': products[idx]['name'],
-                'score': float(cos_scores[idx])
+                'product_id': p['product_id'],
+                'name': p['name'],
+                'score': float(combined_scores[idx])
             })
 
-    # Sort by score
     results = sorted(results, key=lambda x: x['score'], reverse=True)
     return results[:top_k]
 
-# CLI interface
+# CLI
 if __name__ == "__main__":
-    if len(sys.argv) < 2:
+    if len(sys.argv) < 3:
         print(json.dumps([]))
         sys.exit(1)
 
     try:
-        target = int(sys.argv[1])
-        recommendations = get_similar_products(target, top_k=10)
+        product_id = int(sys.argv[1])
+        user_id = int(sys.argv[2])
+        recommendations = get_hybrid_recommendations(product_id, user_id, top_k=10)
         print(json.dumps(recommendations))
     except Exception as e:
         print(json.dumps([]))

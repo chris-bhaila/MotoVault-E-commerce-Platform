@@ -283,14 +283,21 @@ session_start();
                 <th class="p-name" style="border-bottom: 2px solid #000;">Name</th>
                 <th class="p-price" style="border-bottom: 2px solid #000;">Price</th>
                 <th class="" style="border-bottom: 2px solid #000;">Category</th>
+                <th class="" style="border-bottom: 2px solid #000;">Sub-category</th>
                 <th class="" style="border-bottom: 2px solid #000;">Brand</th>
                 <th class="" style="border-bottom: 2px solid #000;">Remaining Stock</th>
                 <th class="" style="border-bottom: 2px solid #000; text-align: left;">Description</th>
                 <th class="" style="border-bottom: 2px solid #000; text-align: left;">Features</th>
-                <th class="" style="border-bottom: 2px solid #000; text-align: left;">Tags</th>
             </tr>
                 <?php
-                $select_product = mysqli_query($conn, "SELECT * FROM `motoproducts` ORDER BY product_id DESC") or die('Query failed.');
+                $select_product = mysqli_query($conn, "
+                    SELECT p.*, c.name AS category_name, s.name AS sub_cat_name, b.name AS brand_name
+                    FROM motoproducts p
+                    LEFT JOIN categories c ON p.category_fid = c.category_id
+                    LEFT JOIN sub_category s ON p.sub_cat_fid = s.sub_cat_id
+                    LEFT JOIN brands b ON p.brand_fid = b.brand_id
+                    ORDER BY p.product_id DESC
+                ") or die('Query failed.');
                 if (mysqli_num_rows($select_product) > 0) {
                     while ($fetch_product = mysqli_fetch_assoc($select_product)) {
                 ?>
@@ -299,12 +306,12 @@ session_start();
                             <td class="p-image" style="text-align: center;"><img src="products/<?php echo $fetch_product['image']; ?>" alt="" class="product-img"></td>
                             <td class="p-name"><?php echo $fetch_product['name'] ?></td>
                             <td class="p-price"><?php echo $fetch_product['price'] ?></td>
-                            <td class="p-cat" style="text-align: center;"><?php echo $fetch_product['category_fid'] ?></td>
-                            <td class="p-brand" style="text-align: center;"><?php echo $fetch_product['brand_fid'] ?></td>
+                            <td class="p-cat" style="text-align: center;"><?php echo $fetch_product['category_name'] ?></td>
+                            <td class="p-sub_category" style="text-align: center;"><?php echo $fetch_product['sub_cat_name'] ?></td>
+                            <td class="p-brand" style="text-align: center;"><?php echo $fetch_product['brand_name'] ?></td>
                             <td class="p-stock" style="text-align: center;"><?php echo $fetch_product['stock'] ?></td>
                             <td class="p-desc"><?php echo $fetch_product['description'] ?></td>
                             <td class="p-feat"><?php echo $fetch_product['features'] ?></td>
-                            <td class="p-tags"><?php echo $fetch_product['tags'] ?></td>
                             <!-- <td><input type="submit" name="update" value="Update" class="option-btn">
                             <input type="hidden" name="id" value="<?php echo $fetch_product['product_id'] ?>">
                                 <a href="manage-product.php?remove=<?php echo $fetch_product['product_id'] ?>" class="delete-btn" 
@@ -354,61 +361,6 @@ session_start();
                     // Handle sub-category change here if needed
                 });
             });
-        }
-        function showHint(str) {
-            const suggestionsBox = document.getElementById("suggestions");
-            if (str.length === 0) {
-                suggestionsBox.innerHTML = "";
-                return;
-            }
-
-            const lastWord = getLastWord(str);
-
-            const xhr = new XMLHttpRequest();
-            xhr.onreadystatechange = function () {
-                if (this.readyState === 4 && this.status === 200) {
-                    const tags = this.responseText.split(",");
-                    let html = "";
-                    tags.forEach(tag => {
-                        tag = tag.trim();
-                        if (tag !== "No Suggestions Found" && tag !== "") {
-                            html += `<div onclick="addTag('${tag}')"
-                                        style="padding: 5px; cursor: pointer;"
-                                        onmouseover="this.style.backgroundColor='#eee'"
-                                        onmouseout="this.style.backgroundColor='white'">${tag}</div>`;
-                        }
-                    });
-                    suggestionsBox.innerHTML = html;
-                }
-            };
-            xhr.open("GET", "tagList.php?q=" + encodeURIComponent(lastWord), true);
-            xhr.send();
-        }
-
-        // Helper: Get the last word (partial tag) from textarea
-        function getLastWord(inputText) {
-            let parts = inputText.split(',');
-            return parts[parts.length - 1].trim(); // Last segment after comma
-        }
-
-        // Insert selected tag, replacing the last typed word
-        function addTag(selectedTag) {
-            const input = document.getElementById("tags");
-            let currentValue = input.value;
-            let parts = currentValue.split(',');
-            
-            // Replace the last word with selectedTag
-            parts[parts.length - 1] = " " + selectedTag; // Add space before tag
-            let newTags = parts.map(tag => tag.trim()).filter(tag => tag !== "");
-
-            // Remove duplicates
-            newTags = [...new Set(newTags)];
-
-            // Add trailing comma and space
-            input.value = newTags.join(", ") + ", ";
-
-            // Clear suggestions box
-            document.getElementById("suggestions").innerHTML = "";
         }
     </script>
 </body>

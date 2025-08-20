@@ -250,14 +250,15 @@
             text-align: center;
             text-decoration: none;
             color: white;
-            background-color: rgb(42, 42, 205);
+            background-color: black;
             cursor: pointer;
             transition: 0.3s ease-in;
             border-radius: 12px;
+            border: 1px solid black;
         }
         .brandsav .option-btn:hover
         {
-            color: blue;
+            color: black;
             background-color: white;
         }
         .first

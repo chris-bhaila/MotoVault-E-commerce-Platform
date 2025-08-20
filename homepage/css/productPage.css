@@ -45,8 +45,9 @@ body
         }
         .info-container .right .l-stock {
             color: red;
-            font-size: 20px;
-            margin-bottom: 2px;
+            font-size: 24px;
+            margin-bottom: 12px;
+            margin-top: 10px;
         }
         .review-container {
             display: flex;
