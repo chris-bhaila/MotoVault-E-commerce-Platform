@@ -18,7 +18,6 @@ session_start();
         $description = isset($_POST["description"]) ? addslashes($_POST["description"]) : '';
         $features = isset($_POST["features"]) ? addslashes($_POST["features"]) : '';
         $images = isset($_FILES['images']) ? $_FILES['images'] : [];
-        $tags = addslashes($_POST["tags"]);
     
         // Validation
         if (empty($sub_category)) {
@@ -66,8 +65,8 @@ session_start();
     
             if ($count_name == 0) {
                 $imagePath = !empty($uploadedFiles) ? addslashes($uploadedFiles[0]) : '';
-                $sql = "INSERT INTO motoproducts (name, price, brand_fid, category_fid, sub_cat_fid, stock, description, features, image, tags, discount_percent)
-                        VALUES ('$name', '$price', '$brand', '$category', '$sub_category', '$stock', '$description', '$features', '$imagePath','$tags',NULL)";
+                $sql = "INSERT INTO motoproducts (name, price, brand_fid, category_fid, sub_cat_fid, stock, description, features, image, discount_percent)
+                        VALUES ('$name', '$price', '$brand', '$category', '$sub_category', '$stock', '$description', '$features', '$imagePath',NULL)";
                 $result = mysqli_query($conn, $sql);
             if ($result) {
                 echo "<script>
@@ -255,13 +254,6 @@ session_start();
                         <td>Enter Points for Features:</td>
                         <td><textarea name="features" class="custom-input" style="width: 20vw; height: 13vh;" required></textarea>
                         <p style="color: red;">*Use '!' for line separation</p></td>
-                    </tr>
-                    <tr>
-                    <td>Tags:</td>
-                    <td style="position: relative;">
-                        <textarea name="tags" class="custom-input" style="width: 20vw; height:13vh;" required id="tags"></textarea>
-                    </td>
-                    <td></td>
                     </tr>
                     <tr>
                         <td><label class="image">Image</label></td>

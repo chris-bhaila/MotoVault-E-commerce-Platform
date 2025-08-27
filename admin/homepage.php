@@ -314,17 +314,17 @@ if (!isset($_SESSION['AID'])) {
                 <?php
                 // Fetch data for the pie chart
                 $pieChartQuery = "
-    SELECT 
-        prod_name, 
-        SUM(prod_quantity) AS total_quantity
-    FROM 
-        c_orders
-    GROUP BY 
-        prod_name
-    ORDER BY 
-        total_quantity DESC
-    LIMIT 5;
-";
+                    SELECT 
+                        prod_name, 
+                        SUM(prod_quantity) AS total_quantity
+                    FROM 
+                        c_orders
+                    GROUP BY 
+                        prod_name
+                    ORDER BY 
+                        total_quantity DESC
+                    LIMIT 5;
+                ";
                 $pieChartResult = mysqli_query($conn, $pieChartQuery);
 
                 $pieChartData = [];

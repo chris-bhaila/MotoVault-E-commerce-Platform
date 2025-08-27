@@ -52,7 +52,7 @@ if(!isset($_SESSION['UID'])) {
                                     <div class="name" style="color: black;"><?php echo htmlspecialchars($fetch_product['name']); ?></div>
                                 </div>
 
-                                <div class="price" style="margin-top: -2vh;">
+                                <div class="price" >
                                     <?php if ($fetch_product['stock'] > 0) { ?>
                                         NPR <?php echo number_format($fetch_product['price']); ?>
                                     <?php } else { ?>

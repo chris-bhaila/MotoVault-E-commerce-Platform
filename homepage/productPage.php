@@ -271,7 +271,7 @@ if (isset($_POST["add-to-cart"])) {
                                     <?php } ?>
                                     <p style="color: green; font-size: 20px; font-weight: 600; margin: 0;">
                                         Rs. <?php echo number_format($truePrice); ?>
-                                        <?php echo number_format($score); ?>%
+                                        
                                     </p>
                                 </div>
 
